@@ -12,7 +12,39 @@
 ## Project Structure
 ```
 .
-├── README.md
+├─ backend                           
+│  ├─ config                         
+│  │  └─ env.ts                      
+│  ├─ dist                           
+│  │  ├─ config                                   
+│  │  ├─ src                         
+│  ├─ src                            
+│  │  ├─ app.controller.spec.ts      
+│  │  ├─ app.controller.ts           
+│  │  ├─ app.module.ts               
+│  │  ├─ app.service.ts              
+│  │  └─ main.ts                     
+│  ├─ test                           
+│  │  ├─ app.e2e-spec.ts             
+│  │  └─ jest-e2e.json               
+│  ├─ README.md                      
+│  ├─ nest-cli.json                  
+│  ├─ package-lock.json              
+│  ├─ package.json                   
+│  ├─ tsconfig.build.json            
+│  └─ tsconfig.json                  
+├─ ml                                
+│  ├─ templates                      
+│  │  └─ index.html                  
+│  ├─ videos                         
+│  │  ├─ curls.mp4                   
+│  │  ├─ press.mp4                   
+│  │  └─ squats.mp4                  
+│  ├─ app.py                         
+│  ├─ body.py                        
+│  ├─ lstm.pkl                       
+│  └─ trying.ipynb                   
+└─ README.md  
 ```
 ## Git Usage
 ### Branches
@@ -38,4 +70,3 @@ git push -u origin <branch name>
 ```
 
 ## ...
-
