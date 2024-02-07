@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService, ConfigModule } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
 import envConfig from '../config/env';
 
 @Module({
@@ -26,6 +27,7 @@ import envConfig from '../config/env';
         synchronize: true, // auto create table, turn off for production
       }),
     }),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
