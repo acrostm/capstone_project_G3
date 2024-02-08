@@ -12,9 +12,7 @@
 ## Project Structure
 ```
 .
-├─ backend                           
-│  ├─ config                         
-│  │  └─ env.ts                      
+├─ backend                                                
 │  ├─ dist                           
 │  │  ├─ config                                   
 │  │  ├─ src                         
@@ -28,6 +26,7 @@
 │  │  ├─ app.e2e-spec.ts             
 │  │  └─ jest-e2e.json               
 │  ├─ README.md                      
+│  ├─ ormconfig.json                     
 │  ├─ nest-cli.json                  
 │  ├─ package-lock.json              
 │  ├─ package.json                   
