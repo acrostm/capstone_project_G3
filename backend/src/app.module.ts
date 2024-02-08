@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
+import { PycvModule } from './pycv/pycv.module';
 import envConfig from '../config/env';
 
 @Module({
@@ -28,6 +29,7 @@ import envConfig from '../config/env';
       }),
     }),
     UsersModule,
+    PycvModule,
   ],
   controllers: [AppController],
   providers: [AppService],
