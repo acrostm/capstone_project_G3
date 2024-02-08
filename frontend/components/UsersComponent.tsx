@@ -16,7 +16,7 @@ const UsersComponent: React.FC = () => {
   const [email, setEmail] = useState('');
 
   const fetchUsers = async () => {
-    fetch('http://localhost:3001/api/users')
+    fetch('/api/users')
       .then(response => response.json())
       .then(data => setUsers(data))
       .catch(error => console.error('Error fetching user data:', error));
@@ -28,7 +28,7 @@ const UsersComponent: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    fetch('http://localhost:3001/api/users', {
+    fetch('/api/users', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ const UsersComponent: React.FC = () => {
   const handleDelete = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      await fetch(`http://localhost:3001/api/users/${id}`, {
+      await fetch(`/api/users/${id}`, {
         method: 'DELETE',
       });
       // 删除成功后重新获取用户列表
