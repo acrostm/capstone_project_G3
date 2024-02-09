@@ -6,7 +6,7 @@ import numpy as np
 import body  # 导入body模块
 
 app = Flask(__name__)
-socketio = SocketIO(app,port=5001)
+cros:socketio = SocketIO(app,port=5001)
 
 @app.route('/')
 def index():
