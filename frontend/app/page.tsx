@@ -1,4 +1,4 @@
-import Cam from '../components/CamComponent'
+import Cam from '../components/Cam'
 import Users from '../components/UsersComponent'
 
 export default function Home() {
