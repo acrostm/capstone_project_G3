@@ -4,6 +4,7 @@ import mediapipe as mp
 import torch
 import torch.nn as nn
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+torch.set_num_threads(1)
 
 class LSTM(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, layer_num):
