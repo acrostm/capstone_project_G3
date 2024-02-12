@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Real Time Face Detection</title>
+    <meta charset="UTF-8">
+    <title>Real-time Face Detection</title>
 </head>
 <body>
-    <h1>实时运动检测</h1>
-    <img src="{{ url_for('video_feed') }}" />
+    <h1>Real-time body Detection</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+
+    <!-- 加载 Socket.IO 客户端库 -->
+    <script src="https://cdn.socket.io/socket.io-3.0.3.min.js"></script>
+
+    <!-- 您的其他 JavaScript 文件 -->
+    <script src="static/camera.js"></script>
 </body>
 </html>
