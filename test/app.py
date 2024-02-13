@@ -4,7 +4,7 @@
 
 # app = Flask(__name__)
 
-# def gen_frames():  
+# def gen_frames():
 #     cap = cv2.VideoCapture(0)
 #     while True:
 #         success, frame = cap.read()
@@ -42,8 +42,14 @@ socketio = SocketIO(app, port=5001, cors_allowed_origins="*")
 def index():
     return render_template('index.html')
 
+
+@socketio.on('connect')
+def connected():
+    print("======connected")
+
+
 @socketio.on('image')
-def handle_image(data):
+def handle_image(data, socketId):
     # 解码图像
     
 
@@ -59,14 +65,14 @@ def handle_image(data):
 
     # 将处理后的图像编码并发送回前端
     _, buffer = cv2.imencode('.jpg', processed_img)
-    print("Encoded image size:", len(buffer), "bytes")
+    # print("Encoded image size:", len(buffer), "bytes")
     # 将图像数据转换为 Base64 字符串
     encoded_image = base64.b64encode(buffer).decode('utf-8')
 
     #print("Encoded image:", encoded_image)
 
-    socketio.emit('response', encoded_image)
-  
+    socketio.emit('response', encoded_image, to=socketId)
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5001)
