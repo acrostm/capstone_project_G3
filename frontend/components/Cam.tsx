@@ -2,8 +2,8 @@
 
 "use client"
 import { CamProps } from "@/types";
-import React, { useEffect, useRef, } from "react";
-import { io } from 'socket.io-client';
+import React, { useRef, } from "react";
+import { io, Socket } from 'socket.io-client';
 import useState from 'react-usestateref'
 
 const DEV_HOST = "http://127.0.0.1:5001"
@@ -12,17 +12,25 @@ const HOST = process.env.NODE_ENV === 'development' ? DEV_HOST : PROD_HOST
 
 const WIDTH = 640, HEIGHT = 360;
 
+interface ServerToClientEvents {
+  response: (image: string) => void;
+}
+
+interface ClientToServerEvents {
+  image: () => void;
+}
+
 const Cam = ({ containerStyles }: CamProps) => {
-  const [stream, setStream] = useState(null);
+  const [stream, setStream] = useState<MediaStream>();
   const [imgSrc, setImgSrc] = useState('');
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [socket, setSocket, socketRef] = useState(null);
+  const videoRef = useRef<HTMLVideoElement>(null!);
+  const canvasRef = useRef<HTMLCanvasElement>(null!);
+  const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
 
 
   const connectSocket = () => {
-    const crtSocket = io(HOST);
+    const crtSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
     setSocket(crtSocket)
 
     // Listen for incoming messages
@@ -51,11 +59,10 @@ const Cam = ({ containerStyles }: CamProps) => {
   }
 
   const startCapture = () => {
-    const crtSocket = socketRef.current;
-    navigator.mediaDevices.getUserMedia({
+    navigator.mediaDevices && navigator.mediaDevices.getUserMedia({
       video: true
     })
-      .then((mediaStream) => {
+      .then((mediaStream: MediaStream) => {
         setStream(mediaStream)
 
         setRecordingStatus(true);
@@ -63,6 +70,8 @@ const Cam = ({ containerStyles }: CamProps) => {
         videoRef.current && (videoRef.current.srcObject = mediaStream);
         captureScreenshot();
 
+      }).catch((err) => {
+        console.log(err)
       });
 
   }
@@ -77,25 +86,40 @@ const Cam = ({ containerStyles }: CamProps) => {
     if (video && canvas) {
       // 在 Canvas 上绘制视频截图
       const ctx = canvas.getContext('2d');
-      loop(ctx, video, canvas, crtSocket)
+      canvas.width = video.clientWidth;
+      canvas.height = video.clientHeight;
+      if (ctx) {
+        loop(ctx, video, canvas, crtSocket);
+        startInterval(ctx, video, canvas, crtSocket);
+      }
     }
 
   };
 
-  const loop = (ctx, video, canvas, crtSocket) => {
-    console.log("statusRef.current===========", statusRef.current)
+  const loop = (ctx: CanvasRenderingContext2D, video: HTMLVideoElement, canvas: HTMLCanvasElement, crtSocket: Socket | undefined) => {
     if (!statusRef.current) return;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(blob => {
-      crtSocket && (crtSocket.emit('image', blob));
+      crtSocket && (crtSocket.emit('image', blob, socketRef.current && socketRef.current.id));
     }, 'image/jpeg');
-    requestAnimationFrame(() => {
-      if (statusRef.current) {
-        console.log("----in requestAnimationFrame----")
-        loop(ctx, video, canvas, crtSocket)
-      }
-    }); // 继续下一帧的截图
 
+    // requestAnimationFrame(() => {
+    //   if (statusRef.current) {
+    //     console.log("----in requestAnimationFrame----")
+    //     loop(ctx, video, canvas, crtSocket)
+    //   }
+    // }); // 继续下一帧的截图
+
+  }
+
+  const startInterval = (ctx: CanvasRenderingContext2D, video: HTMLVideoElement, canvas: HTMLCanvasElement, crtSocket: Socket | undefined) => {
+    let timeInterval = setInterval(() => {
+      if (statusRef.current) {
+        loop(ctx, video, canvas, crtSocket)
+      } else {
+        clearTimeout(timeInterval)
+      }
+    }, 100)
   }
 
   const stopVideo = () => {
@@ -115,8 +139,8 @@ const Cam = ({ containerStyles }: CamProps) => {
   return (
     <div className={containerStyles}>
       <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT} />
-      {imgSrc ? <img src={imgSrc} alt="" className="mt-4" style={{ width: `${WIDTH}px`, height: `${HEIGHT}px`, }} /> : null}
-      <canvas ref={canvasRef} style={{ display: 'none' }} width={WIDTH} height={HEIGHT}></canvas>
+      {imgSrc && recordingStatus ? <img src={imgSrc} alt="" className="mt-4" style={{ width: `${WIDTH}px`, height: `${HEIGHT}px`, }} /> : null}
+      <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
 
       <button className="custom-btn disabled:opacity-25" onClick={startVideo} disabled={recordingStatus}>Start</button>
       <button className="custom-btn disabled:opacity-25" onClick={stopVideo} disabled={!recordingStatus}>Stop</button>
