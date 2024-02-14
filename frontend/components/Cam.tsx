@@ -6,7 +6,7 @@ import React, { useRef, } from "react";
 import { io, Socket } from 'socket.io-client';
 import useState from 'react-usestateref'
 
-const DEV_HOST = "http://127.0.0.1:5001"
+const DEV_HOST = "https://www.3cap.xyz"
 const PROD_HOST = ""  // TODO: PRODUCT HOST
 const HOST = process.env.NODE_ENV === 'development' ? DEV_HOST : PROD_HOST
 
