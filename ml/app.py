@@ -13,6 +13,10 @@ socketio = SocketIO(app, port=5001, cors_allowed_origins="*")
 def index():
     return render_template('index.html')
 
+@socketio.on('connect')
+def connected():
+    print("======connected")
+
 @socketio.on('image')
 def handle_image(data):
     # 解码图像
