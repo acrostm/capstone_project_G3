@@ -57,7 +57,8 @@ def process_frame(frame):
 
     action_name = ''
     if len(sequence) == sequence_length:
-        inputs = torch.tensor([sequence], dtype=torch.float32).to(device)
+        sequence_array = np.array(sequence, dtype=np.float32)
+        inputs = torch.tensor(sequence_array, dtype=torch.float32).unsqueeze(0).to(device)
         with torch.no_grad():
             output = model(inputs)
             action_idx = torch.argmax(output, dim=1).item()
