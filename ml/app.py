@@ -40,7 +40,7 @@ def handle_image(data, socketId):
 
     #print("Encoded image:", encoded_image)
 
-    socketio.emit('response', encoded_image)
+    socketio.emit('response', encoded_image, socketId)
   
 
 if __name__ == '__main__':
