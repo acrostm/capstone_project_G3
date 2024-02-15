@@ -4,7 +4,7 @@ from flask_socketio import SocketIO
 import cv2
 import base64
 import numpy as np
-import face
+import body
 
 app = Flask(__name__)
 socketio = SocketIO(app, port=5001, cors_allowed_origins="*")
@@ -18,7 +18,7 @@ def connected():
     print("======connected")
 
 @socketio.on('image')
-def handle_image(data):
+def handle_image(data, socketId):
     # 解码图像
     
 
@@ -30,7 +30,7 @@ def handle_image(data):
     
 
     # 使用 face.py 处理图像
-    processed_img = face.process_frame(img)
+    processed_img = body.process_frame(img)
 
     # 将处理后的图像编码并发送回前端
     _, buffer = cv2.imencode('.jpg', processed_img)
