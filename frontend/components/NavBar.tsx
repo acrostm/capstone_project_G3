@@ -1,8 +1,10 @@
+import React from 'react';
 import Link from 'next/link';
+import Layout from '@/app/layout';
 
-export default function Home() {
+const NavBar: React.FC = () => {
   return (
-    <main>
+    <Layout>
       <nav className="bg-gray-800 p-4">
         <div className="container mx-auto flex justify-between items-center">
           <div>
@@ -22,11 +24,9 @@ export default function Home() {
           </div>
         </div>
       </nav>
-      <div>
-        <h1>
-          Welcome to the Home Page
-        </h1>
-      </div>
-    </main>
+    </Layout>
+
   );
 }
+
+export default NavBar;
