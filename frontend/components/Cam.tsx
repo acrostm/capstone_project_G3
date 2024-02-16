@@ -2,12 +2,13 @@
 
 "use client"
 import { CamProps } from "@/types";
-import React, { useRef, } from "react";
+import React, { useRef } from "react";
 import { io, Socket } from 'socket.io-client';
-import useState from 'react-usestateref'
+import useState from 'react-usestateref';
+import Image from 'next/image'
 
-const DEV_HOST = "https://www.3cap.xyz"
-const PROD_HOST = ""  // TODO: PRODUCT HOST
+const DEV_HOST = "127.0.0.1:5001"
+const PROD_HOST = "https://www.3cap.xyz"  // TODO: PRODUCT HOST
 const HOST = process.env.NODE_ENV === 'development' ? DEV_HOST : PROD_HOST
 
 const WIDTH = 640, HEIGHT = 360;
@@ -35,11 +36,10 @@ const Cam = ({ containerStyles }: CamProps) => {
 
     // Listen for incoming messages
     crtSocket.on('connect', () => {
-      console.log(crtSocket.id)
       startCapture();
     })
     crtSocket.on("disconnect", () => {
-      console.log("success disconnect"); // undefined
+      console.log("success disconnect");
     });
     crtSocket.on('response', (encoded_image) => {
       // 将接收到的 Base64 字符串转换为图像 URL
@@ -68,7 +68,9 @@ const Cam = ({ containerStyles }: CamProps) => {
         setRecordingStatus(true);
 
         videoRef.current && (videoRef.current.srcObject = mediaStream);
-        captureScreenshot();
+        videoRef.current.addEventListener('loadedmetadata', () => {
+          captureScreenshot(videoRef.current.clientWidth, videoRef.current.clientHeight);
+        });
 
       }).catch((err) => {
         console.log(err)
@@ -76,7 +78,7 @@ const Cam = ({ containerStyles }: CamProps) => {
 
   }
 
-  const captureScreenshot = () => {
+  const captureScreenshot = (width: number, height: number) => {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -86,8 +88,9 @@ const Cam = ({ containerStyles }: CamProps) => {
     if (video && canvas) {
       // 在 Canvas 上绘制视频截图
       const ctx = canvas.getContext('2d');
-      canvas.width = video.clientWidth;
-      canvas.height = video.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+
       if (ctx) {
         loop(ctx, video, canvas, crtSocket);
         startInterval(ctx, video, canvas, crtSocket);
@@ -136,15 +139,27 @@ const Cam = ({ containerStyles }: CamProps) => {
     closeSocket();
   }
 
-  return (
-    <div className={containerStyles}>
-      <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT} />
-      {imgSrc && recordingStatus ? <img src={imgSrc} alt="" className="mt-4" style={{ width: `${WIDTH}px`, height: `${HEIGHT}px`, }} /> : null}
-      <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
 
-      <button className="custom-btn disabled:opacity-25" onClick={startVideo} disabled={recordingStatus}>Start</button>
-      <button className="custom-btn disabled:opacity-25" onClick={stopVideo} disabled={!recordingStatus}>Stop</button>
-    </div>
+  return (
+    <>
+      <div className="mb-4">
+        <button className="custom-btn disabled:opacity-25" onClick={startVideo} disabled={recordingStatus}>Start</button>
+        <button className="custom-btn disabled:opacity-25" onClick={stopVideo} disabled={!recordingStatus}>Stop</button>
+      </div>
+      <div className={`${containerStyles} relative`}>
+        <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: -1
+          }}
+        />
+        {imgSrc && recordingStatus ? <Image src={imgSrc} alt="" width={WIDTH} height={HEIGHT} /> : null}
+        <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+      </div>
+    </>
+
   );
 };
 export default Cam;
