@@ -1,102 +1,111 @@
-import cv2
-import mediapipe as mp
-import time
-
-def process_frame(img):
-    # 创建新的人脸检测模型实例
-    with mp.solutions.face_detection.FaceDetection(min_detection_confidence=0.5, model_selection=1) as model:
-        start_time = time.time()
-        img_RGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        results = model.process(img_RGB)
-
-        if results.detections:
-            for detection in results.detections:
-                mp.solutions.drawing_utils.draw_detection(img, detection)
-
-        end_time = time.time()
-        FPS = 1 / (end_time - start_time)
-        processed_img = cv2.putText(img, 'FPS ' + str(int(FPS)), (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.25, (0, 0, 255), 1)
-
-        return processed_img
-
-
-# # 人脸检测模型设置
-# mp_face_detection = mp.solutions.face_detection
-# model = mp_face_detection.FaceDetection(min_detection_confidence=0.5, model_selection=1)
-
-# mp_drawing = mp.solutions.drawing_utils
-# keypoint_style = mp_drawing.DrawingSpec(thickness=5, circle_radius=3, color=(0, 255, 0))
-# bbox_style = mp_drawing.DrawingSpec(thickness=5, circle_radius=3, color=(255, 0, 0))
+# import cv2
+# import mediapipe as mp
+# import time
 
 # def process_frame(img):
-#     start_time = time.time()
-#     img_RGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-#     results = model.process(img_RGB)
-#     if results.detections:
-#         for detection in results.detections:
-#             mp_drawing.draw_detection(img, detection, keypoint_drawing_spec=keypoint_style, bbox_drawing_spec=bbox_style)
-#     end_time = time.time()
-#     FPS = 1 / (end_time - start_time)
-#     scaler = 1
-#     processed_img = cv2.putText(img, 'FPS ' + str(int(FPS)), (25 * scaler, 50 * scaler), cv2.FONT_HERSHEY_SIMPLEX, 1.25 * scaler, (0, 0, 255), 1)
+#     # 创建新的人脸检测模型实例
+#     with mp.solutions.face_detection.FaceDetection(min_detection_confidence=0.5, model_selection=1) as model:
+#         start_time = time.time()
+#         img_RGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+#         results = model.process(img_RGB)
 
-#     return processed_img
+#         if results.detections:
+#             for detection in results.detections:
+#                 mp.solutions.drawing_utils.draw_detection(img, detection)
 
-# def main():
-#     # 使用摄像头捕获图像或读取本地图像
-#     cap = cv2.VideoCapture(0)
+#         end_time = time.time()
+#         FPS = 1 / (end_time - start_time)
+#         processed_img = cv2.putText(img, 'FPS ' + str(int(FPS)), (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.25, (0, 0, 255), 1)
 
-#     while True:
-#         ret, frame = cap.read()
-#         if not ret:
-#             break
+#         return processed_img
 
-#         # 调用 process_frame 函数
-#         processed_frame = process_frame(frame)
-
-#         # 显示原始图像和处理后的图像
-#         cv2.imshow('Original', frame)
-#         cv2.imshow('Processed', processed_frame)
-
-#         # 按 'q' 键退出
-#         if cv2.waitKey(1) & 0xFF == ord('q'):
-#             break
-
-#     cap.release()
-#     cv2.destroyAllWindows()
-
-# if __name__ == '__main__':
-#     main()
 
 # import cv2
 # import mediapipe as mp
-# import sys
-# import os
+# import time
 
-# # 人脸检测模型设置
-# mp_face_detection = mp.solutions.face_detection
-# model = mp_face_detection.FaceDetection(min_detection_confidence=0.5, model_selection=1)
 
-# mp_drawing = mp.solutions.drawing_utils
-# keypoint_style = mp_drawing.DrawingSpec(thickness=5, circle_radius=3, color=(0, 255, 0))
-# bbox_style = mp_drawing.DrawingSpec(thickness=5, circle_radius=3, color=(255, 0, 0))
+import cv2
+import numpy as np
+import mediapipe as mp
+import torch
+import torch.nn as nn
+import time
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-# def process_frame(img_path):
-#     img = cv2.imread(img_path)
-#     img_RGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-#     results = model.process(img_RGB)
-#     if results.detections:
-#         for detection in results.detections:
-#             mp_drawing.draw_detection(img, detection, keypoint_drawing_spec=keypoint_style, bbox_drawing_spec=bbox_style)
+class LSTM(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, layer_num):
+        super(LSTM, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.lstm = torch.nn.LSTM(input_dim, hidden_dim, layer_num, batch_first=True)
+        self.fc = torch.nn.Linear(hidden_dim, output_dim)
+        self.bn = nn.BatchNorm1d(30)
+        
+    def forward(self, inputs):
+        x = self.bn(inputs)
+        lstm_out, (hn, cn) = self.lstm(x)
+        out = self.fc(lstm_out[:, -1, :])
+        return out
+       
+# 加载模型
+n_hidden = 128
+n_joints = 132
+n_categories = 3
+n_layer = 3
+model = LSTM(n_joints, n_hidden, n_categories, n_layer)
 
-#     processed_image_path = 'processed_' + img_path
-#     cv2.imwrite(processed_image_path, img)
-#     return processed_image_path
+model.load_state_dict(torch.load('lstm.pkl', map_location=torch.device('cpu')))
+model.to(device)
+model.eval()
 
-# if __name__ == '__main__':
-#     if len(sys.argv) > 1:
-#         image_path = sys.argv[1]
-#         result = process_frame(image_path)
-#         print(result)  # 输出处理后的图像文件路径
-#     else:
-#         print("No image path provided.")
+# Mediapipe 模型初始化
+
+mp_pose = mp.solutions.pose
+pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
+sequence = []
+sequence_length = 30
+actions = np.array(['curl', 'squats', 'bridges'])
+
+def extract_keypoints(results):
+    pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
+    return pose
+
+
+def process_frame(frame):
+    global sequence
+    
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = pose.process(frame_rgb)
+
+    if results.pose_landmarks:
+        mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+    keypoints = extract_keypoints(results)
+    sequence.append(keypoints)
+    sequence = sequence[-sequence_length:]
+
+    action_name = 'no action'  # 默认情况下显示为“没有动作检测到”
+    confidence = 0
+    if len(sequence) == sequence_length:
+        #inputs = torch.tensor([sequence], dtype=torch.float32).to(device)
+        sequence_array = np.array(sequence, dtype=np.float32)
+        inputs = torch.tensor(sequence_array, dtype=torch.float32).unsqueeze(0).to(device)
+    
+
+        with torch.no_grad():
+            outputs = model(inputs)
+            probabilities = torch.softmax(outputs, dim=1)
+            action_idx = torch.argmax(probabilities, dim=1).item()
+            confidence = probabilities[0][action_idx].item() * 100
+
+            # 当置信度高于90%时，更新动作名称
+            if confidence >= 90:
+                action_name = actions[action_idx]
+
+        # 在视频右侧显示动作名称和置信度（百分比形式）
+        cv2.putText(frame, f'Action: {action_name}', (frame.shape[1] - 250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(frame, f'Confidence: {confidence:.2f}%', (frame.shape[1] - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+    return frame
