@@ -45,6 +45,9 @@ $ npm run test:cov
 ```
 
 ## Registration and Login 
-- using JWT to mark authorized user, response to client to store in Localstorage
+- using `bcrypt` to hash password, save encrypted password in database
+- find the username in database, and then compare the password with the encrypted password, to authenticate user
+- using `JWT` and `passportjs` to create token and authenticate user, save token in Localstorage
+- `JWT` token is valid for 4 hour, and is from AuthHeaderAsBearerToken 
 
 ![alt text](image.png)
