@@ -13,21 +13,35 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error accessing camera:', err);
         });
 
+    
+
     video.addEventListener('play', () => {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
+        let frameCount = 0;
+        const frameRate = 10;  // Limit to 10 frames per second
 
         function sendFrame() {
             if (video.paused || video.ended) {
                 return;
             }
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Limit the frame rate
+            if (frameCount++ % frameRate === 0) {
+                canvas.width = video.videoWidth /2;  // Reduce resolution
+                canvas.height = video.videoHeight/2;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                canvas.toBlob(blob => {
+                    socket.emit('image', blob);
+                }, 'image/jpeg');
+            }
+            // canvas.width = video.videoWidth;
+            // canvas.height = video.videoHeight;
+            // context.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            canvas.toBlob(blob => {
-                socket.emit('image', blob);
-            }, 'image/jpeg');
+            // canvas.toBlob(blob => {
+            //     socket.emit('image', blob);
+            // }, 'image/jpeg');
 
             requestAnimationFrame(sendFrame);
         }
@@ -46,6 +60,9 @@ document.addEventListener('DOMContentLoaded', function () {
             img.id = 'processed_img';
             document.body.appendChild(img);
         }
+         // Update image width and height to fit the desired size
+        img.style.width = '50%';  // Adjust to your desired width
+        img.style.height = 'auto';  // Maintain aspect ratio
         img.src = imgSrc;
     });
     
