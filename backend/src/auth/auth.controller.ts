@@ -1,11 +1,10 @@
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   ClassSerializerInterceptor,
   Controller,
-  Get,
   Post,
   Req,
   UseGuards,
