@@ -23,7 +23,7 @@ export class AuthService {
       username: user.username,
       role: user.role,
     });
-
+    console.log('login succeed:\n', token);
     return { token };
   }
 

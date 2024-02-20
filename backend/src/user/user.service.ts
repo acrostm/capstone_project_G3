@@ -4,7 +4,7 @@ import { User } from './entities/user.entity';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+// import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 // import { WechatUserInfo } from '../auth/auth.interface';
 
@@ -71,13 +71,9 @@ export class UserService {
     return await this.userRepository.findOne({ where: { id } });
   }
 
-  async findByOpenid(openid: string) {
-    return await this.userRepository.findOne({ where: { openid } });
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  // update(id: number, updateUserDto: UpdateUserDto) {
+  //   return `This action updates a #${id} user`;
+  // }
 
   remove(id: number) {
     return `This action removes a #${id} user`;
