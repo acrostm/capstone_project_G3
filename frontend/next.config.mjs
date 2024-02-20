@@ -11,6 +11,9 @@ const rewrites = () => {
 const nextConfig = {
   reactStrictMode: true,
   rewrites,
+  images: {
+    domains: ['avatars.githubusercontent.com'],
+  },
 }
 
 export default nextConfig

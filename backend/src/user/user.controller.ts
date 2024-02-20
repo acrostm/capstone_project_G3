@@ -10,7 +10,6 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   UseGuards,
-  Request,
   Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -43,7 +42,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   getUserInfo(@Req() req) {
-    console.log(req.user, 'req.user');
+    console.log(req.user, '<-req.user');
     return req.user;
   }
 
