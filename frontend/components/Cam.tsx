@@ -6,6 +6,9 @@ import React, { useRef } from "react";
 import { io, Socket } from 'socket.io-client';
 import useState from 'react-usestateref';
 import Image from 'next/image'
+import { Button } from '@mui/material';
+import ErrorIcon from '@mui/icons-material/Error';
+
 
 const DEV_HOST = "127.0.0.1:5001"
 const PROD_HOST = "https://www.3cap.xyz"  // TODO: PRODUCT HOST
@@ -21,11 +24,20 @@ interface ClientToServerEvents {
   image: () => void;
 }
 
+const STATUS_COLOR = {
+  0: '#06fa22', // NORMAL
+  1: '#f8c20e', // WARNING
+  2: '#f21136',  // ERROR
+};
+
 const Cam = ({ containerStyles }: CamProps) => {
   const [stream, setStream] = useState<MediaStream>();
   const [imgSrc, setImgSrc] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
+  const [status, setStatus] = useState<0 | 1 | 2>(1);
+  const [statusMsg, setStatusMsg] = useState('This is a warning');
+  const [count, setCount] = useState(5);
   const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
 
@@ -50,7 +62,6 @@ const Cam = ({ containerStyles }: CamProps) => {
   }
 
   const closeSocket = () => {
-
     socket && socket.disconnect();
   }
 
@@ -142,22 +153,35 @@ const Cam = ({ containerStyles }: CamProps) => {
 
   return (
     <>
-      <div className="mb-4">
-        <button className="custom-btn disabled:opacity-25" onClick={startVideo} disabled={recordingStatus}>Start</button>
-        <button className="custom-btn disabled:opacity-25" onClick={stopVideo} disabled={!recordingStatus}>Stop</button>
+
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <Button variant="contained" style={{ marginRight: '1rem' }} onClick={startVideo} disabled={recordingStatus}>Start</Button>
+          <Button variant="contained" onClick={stopVideo} disabled={!recordingStatus}>Stop</Button>
+        </div>
+        <div className="flex items-center justify-between  w-96">
+          <div>Count:{count}</div>
+          <div style={{ color: STATUS_COLOR[status] }}>
+            <ErrorIcon className="align-middle" />
+            <span className="align-middle">{statusMsg}</span>
+          </div>
+        </div>
       </div>
-      <div className={`${containerStyles} relative`}>
-        <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT}
+      <div style={{ width: WIDTH, margin: '0 auto' }}>
+        <div className={`${containerStyles ? containerStyles : ''} relative`}>
+          <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT}
           // style={{
           //   position: 'absolute',
           //   top: 0,
           //   left: 0,
           //   zIndex: -1
           // }}
-        />
-        {imgSrc && recordingStatus ? <Image src={imgSrc} alt="" width={WIDTH} height={HEIGHT} /> : null}
-        <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+          />
+          {imgSrc && recordingStatus ? <Image src={imgSrc} alt="" width={WIDTH} height={HEIGHT} /> : null}
+          <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+        </div>
       </div>
+
     </>
 
   );

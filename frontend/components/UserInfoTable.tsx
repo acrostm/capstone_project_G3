@@ -25,7 +25,7 @@ const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
   console.log('User Info:', userInfo, typeof userInfo);
 
   return (
-    <div className="bg-white p-8 rounded shadow-md w-96">
+    <div className="bg-white p-4 rounded shadow-md w-96">
       <h2 className="text-2xl mb-4">User Info</h2>
       <div className="flex justify-center mb-4">
         {userInfo.avatar && (
