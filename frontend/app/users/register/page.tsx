@@ -12,19 +12,24 @@ const Page: React.FC = () => {
   const [password, setPassword] = useState('');
   const [cfPassword, setCfPassword] = useState('');
   const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [userError, setUserError] = useState<string | null>(null);
+  const [pswError, setPswError] = useState<string | null>(null);
   const router = useRouter()
 
 
+  const clearError = () => {
+    setPswError(null);
+    setUserError(null);
+
+  }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password !== cfPassword) {
-      setError("The passwords you entered do not match");
+      setPswError("The passwords you entered do not match");
       return;
     }
-    setError(null);
-
+    clearError();
     try {
       const response = await fetch('/api/user/register', {
         method: 'POST',
@@ -34,18 +39,19 @@ const Page: React.FC = () => {
         body: JSON.stringify({ username, password })
       });
 
+
       if (!response.ok) {
-        throw new Error('Login failed, please check your username and password');
+        const data = await response.json();
+        throw new Error(data.message || 'Register failed, please check your username and password');
       }
       setOpen(true);
       let timeout = setTimeout(() => {
         router.replace("/users");
         clearTimeout(timeout);
       }, 1000);
-
-
     } catch (error: any) {
-      setError(error.message);
+      console.log(error)
+      setUserError(error.message);
     }
   };
 
@@ -62,6 +68,8 @@ const Page: React.FC = () => {
         <form onSubmit={handleSubmit} autoComplete="off">
           <div className="mb-4">
             <TextField required className='w-full' id="username" label="Username" value={username}
+              error={userError ? true : false}
+              helperText={userError}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setUsername(event.target.value);
               }} />
@@ -69,16 +77,16 @@ const Page: React.FC = () => {
           </div>
           <div className="mb-4">
             <TextField required className='w-full' type="password" id="password" label="Password" value={password}
-              error={error ? true : false}
-              helperText={error}
+              error={pswError ? true : false}
+              helperText={pswError}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setPassword(event.target.value);
               }} />
           </div>
           <div className="mb-4">
             <TextField required className='w-full' type="password" id="cfPassword" label="Confirm Password" value={cfPassword}
-              error={error ? true : false}
-              helperText={error}
+              error={pswError ? true : false}
+              helperText={pswError}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setCfPassword(event.target.value);
               }} />
@@ -87,7 +95,7 @@ const Page: React.FC = () => {
         </form>
 
         <div className="mt-2 text-center">
-          <Link href="/users" className="hover:underline" style={{ color: 'rgb(144, 202, 249)' }}>
+          <Link href="/users" className="text-blue-400 hover:underline">
             Sign In
           </Link>
         </div>

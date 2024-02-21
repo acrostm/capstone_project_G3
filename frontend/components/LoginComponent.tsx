@@ -111,11 +111,11 @@ const LoginComponent: React.FC = () => {
                 }} />
 
             </div>
-            <Button type="submit" variant="outlined" className='w-full'>Sign In</Button>
+            <Button type="submit" variant="contained" className='w-full'>Sign In</Button>
           </form>
 
           <div className="mt-2 text-center">
-            <Link href="/users/register" className="hover:underline" style={{ color: 'rgb(144, 202, 249)' }}>
+            <Link href="/users/register" className="text-blue-400 hover:underline">
               Sign Up
             </Link>
           </div>
