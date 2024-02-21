@@ -34,11 +34,13 @@ const LoginComponent: React.FC = () => {
       });
 
       if (!response.ok) {
+        handleLogout(); // 获取用户信息失败，清除 localStorage 中的 token, 要求重新登录
         throw new Error('Failed to get user\'s information');
       }
 
       const userInfoData = await response.json();
       setUserInfo(userInfoData);
+      setShowLogin(false); // 登录成功后隐藏登录界面
     } catch (error) {
       console.error('Error fetching user info:', error);
     }
@@ -66,7 +68,6 @@ const LoginComponent: React.FC = () => {
 
       // 获取用户信息
       await fetchUserInfo();
-      setShowLogin(false); // 登录成功后隐藏登录界面
     } catch (error: any) {
       setError(error.message);
     }
