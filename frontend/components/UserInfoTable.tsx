@@ -25,8 +25,8 @@ const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
   console.log('User Info:', userInfo, typeof userInfo);
 
   return (
-    <div className="bg-white p-8 rounded shadow-md w-80">
-      <h2 className="text-2xl mb-4">用户信息</h2>
+    <div className="bg-white p-8 rounded shadow-md w-96">
+      <h2 className="text-2xl mb-4">User Info</h2>
       <div className="flex justify-center mb-4">
         {userInfo.avatar && (
           <div className="rounded-full overflow-hidden w-20 h-20">
@@ -36,22 +36,22 @@ const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
       </div>
       <table className="table-auto">
         <tbody>
-        <tr>
-          <td className="border px-4 py-2">用户名</td>
-          <td className="border px-4 py-2">{userInfo.username}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2">权限</td>
-          <td className="border px-4 py-2">{userInfo.role}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2">邮箱</td>
-          <td className="border px-4 py-2">{userInfo.email}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2">注册时间</td>
-          <td className="border px-4 py-2">{userInfo.createTime}</td>
-        </tr>
+          <tr>
+            <td className="border px-4 py-2">Username</td>
+            <td className="border px-4 py-2">{userInfo.username}</td>
+          </tr>
+          <tr>
+            <td className="border px-4 py-2">Auth</td>
+            <td className="border px-4 py-2">{userInfo.role}</td>
+          </tr>
+          <tr>
+            <td className="border px-4 py-2">Email</td>
+            <td className="border px-4 py-2">{userInfo.email}</td>
+          </tr>
+          <tr>
+            <td className="border px-4 py-2">Register Time</td>
+            <td className="border px-4 py-2">{userInfo.createTime}</td>
+          </tr>
         </tbody>
       </table>
     </div>

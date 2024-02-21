@@ -88,8 +88,8 @@ const Cam = ({ containerStyles }: CamProps) => {
     if (video && canvas) {
       // 在 Canvas 上绘制视频截图
       const ctx = canvas.getContext('2d');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = width / 2;
+      canvas.height = height / 2;
 
       if (ctx) {
         loop(ctx, video, canvas, crtSocket);
@@ -148,12 +148,12 @@ const Cam = ({ containerStyles }: CamProps) => {
       </div>
       <div className={`${containerStyles} relative`}>
         <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: -1
-          }}
+          // style={{
+          //   position: 'absolute',
+          //   top: 0,
+          //   left: 0,
+          //   zIndex: -1
+          // }}
         />
         {imgSrc && recordingStatus ? <Image src={imgSrc} alt="" width={WIDTH} height={HEIGHT} /> : null}
         <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
