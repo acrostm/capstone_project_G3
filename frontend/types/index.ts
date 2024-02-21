@@ -2,3 +2,10 @@
 export interface CamProps {
   containerStyles?: string
 }
+
+export interface SnackbarProps {
+  open: boolean;
+  autoHideDuration?: number;
+  onClose: () => void;
+  message: string;
+}
