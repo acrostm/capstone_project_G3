@@ -170,12 +170,12 @@ const Cam = ({ containerStyles }: CamProps) => {
       <div style={{ width: WIDTH, margin: '0 auto' }}>
         <div className={`${containerStyles ? containerStyles : ''} relative`}>
           <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT}
-          // style={{
-          //   position: 'absolute',
-          //   top: 0,
-          //   left: 0,
-          //   zIndex: -1
-          // }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: -1
+          }}
           />
           {imgSrc && recordingStatus ? <Image src={imgSrc} alt="" width={WIDTH} height={HEIGHT} /> : null}
           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
