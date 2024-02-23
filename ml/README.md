@@ -8,7 +8,7 @@ pip install numpy
 pip install mediapipe
 pip install torch
 pip install flask
-python3 app.py
+python3 pages.py
 ```
 
 ...

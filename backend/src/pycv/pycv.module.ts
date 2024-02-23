@@ -4,6 +4,6 @@ import { PycvService } from './pycv.service';
 
 @Module({
   controllers: [PycvController],
-  providers: [PycvService]
+  providers: [PycvService],
 })
 export class PycvModule {}
