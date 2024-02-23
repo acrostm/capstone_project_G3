@@ -30,7 +30,7 @@ const UserInfoPage = () => {
       }
 
       const userInfoData = await response.json();
-      setUserInfo(userInfoData);
+      setUserInfo(userInfoData.data);
     } catch (error) {
       console.error('Error fetching user info:', error);
     }
@@ -59,7 +59,8 @@ const UserInfoPage = () => {
       <div className="flex-1">
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <UserInfoTable userInfo={userInfo?.data} />
+            {userInfo && <UserInfoTable userInfo={userInfo} />}
+            <h1>Get user info failed!</h1>
           </div>
         </div>
       </div>
