@@ -4,16 +4,15 @@ import {
   Get,
   Post,
   Body,
-  Param,
-  Delete,
   UseInterceptors,
   ClassSerializerInterceptor,
   UseGuards,
   Req,
+  Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -45,18 +44,20 @@ export class UserController {
     return req.user;
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  @ApiOperation({ summary: '获取所有用户列表' })
+  @ApiBearerAuth() // swagger文档设置token
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/all')
+  getAllUserList() {
+    return this.userService.findAllUsers();
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.update(+id, updateUserDto);
-  // }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @ApiOperation({ summary: '更新用户信息' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/update') // 使用 Patch 装饰器定义路由
+  updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    const { id } = req.params; // 获取用户ID
+    return this.userService.updateUser(id, updateUserDto);
   }
 }

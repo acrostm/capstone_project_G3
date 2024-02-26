@@ -1,6 +1,9 @@
 // UserInfoTable.tsx
 "use client"
 import React from 'react';
+import { Button } from '@/components/Button';
+import { useRouter } from 'next/navigation';
+import LocalizedDateTime from '@/components/LocallizedDateTime';
 
 interface UserInfo {
   username: string;
@@ -18,21 +21,45 @@ interface Props {
 }
 
 const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
+  const router = useRouter();
+
   if (!userInfo) {
     return null;
   }
 
+  const handleShuffleAvatar = async () => {
+    try {
+      const response = await fetch('/api/user/update', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${localStorage.token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get user\'s information');
+      }
+
+      console.log('response', response);
+      router.push('/users');
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
+  }
+
   return (
     <div className="overflow-hidden bg-white shadow sm:rounded-lg mt-28 ml-9 mr-9">
-      <div className="px-4 py-6 sm:px-6 flex justify-center items-center">
+      <div className="relative px-4 py-6 sm:px-6 flex justify-center items-center">
         <span className="relative inline-block h-18 w-18 rounded-full">
           <img
             className="max-h-full max-w-full rounded-full"
-            src={ userInfo.avatar || "https://www.gravatar.com/avatar/" }
+            src={userInfo.avatar || "https://www.gravatar.com/avatar/"}
             alt="avatar"
           />
-          <span className="absolute bottom-0 right-0 block h-4 w-4 rounded-full bg-green-400 ring-2 ring-white" />
         </span>
+        <Button className="absolute bottom-0 right-0 mb-20 mr-6" variant="outline">Edit Personal Info</Button>
+        <Button className="absolute bottom-0 right-0 mb-6 mr-6" variant="solid" onClick={handleShuffleAvatar}>Random Avatar</Button>
       </div>
       <div className="border-t border-gray-100">
         <dl className="divide-y divide-gray-100">
@@ -50,7 +77,7 @@ const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
           </div>
           <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt className="text-sm font-medium text-gray-900">Register Time</dt>
-            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{userInfo.createTime}</dd>
+            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><LocalizedDateTime timestamp={userInfo.createTime} /> </dd>
           </div>
           <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt className="text-sm font-medium text-gray-900">About</dt>

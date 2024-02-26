@@ -139,7 +139,7 @@ export function Header() {
                             <MobileNavLink href="/info">
                               Account
                             </MobileNavLink>
-                            <MobileNavLink href="/#">About us</MobileNavLink>
+                            <MobileNavLink href="/about">About us</MobileNavLink>
                           </div>
                           <div className="mt-8 flex flex-col gap-4">
                             <Button href="/login" variant="outline">

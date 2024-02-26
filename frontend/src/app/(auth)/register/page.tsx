@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import SnackbarComponent from "@/components/SnackbarComponent"
 import { AuthLayout } from '@/components/AuthLayout';
 import { Button } from '@/components/Button';
 import { SelectField, TextField } from '@/components/Fields'
@@ -22,7 +21,6 @@ const Page: React.FC = () => {
   const [cfPassword, setCfPassword] = useState('');
   const [role, setRole] = useState('visitor');
   const [email, setEmail] = useState('');
-  const [open, setOpen] = useState(false);
   const router = useRouter()
 
   // TODO: add error handler to TextField component
@@ -57,11 +55,8 @@ const Page: React.FC = () => {
         const data = await response.json();
         throw new Error(data.message || 'Register failed, please check your username and password');
       }
-      setOpen(true);
-      let timeout = setTimeout(() => {
-        router.replace("/info");
-        clearTimeout(timeout);
-      }, 1000);
+      localStorage.setItem('justRegister', 'true');
+      router.push('/login');
     } catch (error: any) {
       console.log(error)
       setUserError(error.message);
@@ -81,12 +76,6 @@ const Page: React.FC = () => {
             </>
           }
         >
-          <SnackbarComponent
-            open={open}
-            autoHideDuration={1000}
-            message='Sign up success!'
-            onClose={() => setOpen(false)}
-          />
           <form onSubmit={handleSubmit} autoComplete="off">
             <div className="col-span-full gap-6">
               <TextField

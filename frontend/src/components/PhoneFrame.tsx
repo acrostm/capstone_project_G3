@@ -37,6 +37,8 @@ export function PhoneFrame({
         className="pointer-events-none absolute inset-0 h-full w-full"
         unoptimized
         priority={priority}
+        width={100}
+        height={100}
       />
     </div>
   )
