@@ -13,14 +13,25 @@
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@headlessui/react": "^1.7.18",
+    "@headlessui/tailwindcss": "^0.2.0",
+    "@tailwindcss/forms": "^0.5.3",
     "@heroicons/react": "^2.1.1",
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
+    "autoprefixer": "^10.4.12",
     "next": "14.1.0",
     "react": "^18",
+    "clsx": "^1.2.1",
+    "framer-motion": "^10.15.0",
     "react-dom": "^18",
     "react-usestateref": "^1.0.8",
-    "socket.io-client": "^4.7.4"
+    "socket.io-client": "^4.7.4",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5",
+    "use-debounce": "^9.0.4",
+    "@types/node": "20.4.5",
+    "@types/react": "18.2.18",
+    "@types/react-dom": "18.2.7"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -30,8 +41,6 @@
     "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "postcss": "^8.4.35"
   }
 }
