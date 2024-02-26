@@ -150,7 +150,7 @@ export function Hero() {
                 ['HuffPost', logoHuffpost, 'hidden xl:block'],
               ].map(([name, logo, className]) => (
                 <li key={name} className={clsx('flex', className)}>
-                  <Image src={logo} alt={name} className="h-8" unoptimized />
+                  <Image src={logo} alt={name} className="h-8" unoptimized width={100} height={100} />
                 </li>
               ))}
             </ul>
