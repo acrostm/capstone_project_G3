@@ -13,4 +13,10 @@ export class CreateUserDto {
 
   @ApiProperty({ description: 'user role' })
   role: string;
+
+  @ApiProperty({ description: 'user avatar' })
+  avatar: string;
+
+  @ApiProperty({ description: 'email' })
+  email: string;
 }

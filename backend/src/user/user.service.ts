@@ -1,11 +1,12 @@
 // user/user.service.ts
 import { compareSync } from 'bcryptjs';
 import { User } from './entities/user.entity';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 // import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
+
 // import { WechatUserInfo } from '../auth/auth.interface';
 
 @Injectable()
@@ -28,6 +29,20 @@ export class UserService {
     if (user) {
       throw new HttpException('username already exits', HttpStatus.BAD_REQUEST);
     }
+
+    // 使用 fetch 从 API 获取图片链接
+    const response = await fetch(
+      'https://api.unsplash.com/photos/random/?client_id=ZIhCJTRReRPKlwavLyn1U9BOODcJeLGaemSweEbohm8&collections=eR9Yy1KH53o&count=1&content_filter=high&orientation=landscape',
+    );
+    if (!response.ok) {
+      throw new HttpException(
+        'Failed to fetch image',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    const data = await response.json();
+
+    createUser.avatar = data[0].urls.small;
 
     const newUser = await this.userRepository.create(createUser);
     console.log('newUser', newUser);

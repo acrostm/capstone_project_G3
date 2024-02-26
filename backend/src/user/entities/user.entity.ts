@@ -12,9 +12,6 @@ export class User {
   @Column({ length: 100, nullable: true })
   username: string;
 
-  @Column({ length: 100, nullable: true })
-  nickname: string;
-
   @Exclude()
   @Column({ select: false, nullable: true })
   password: string;
@@ -25,7 +22,7 @@ export class User {
   @Column({ default: null })
   email: string;
 
-  @Column('enum', { enum: ['root', 'author', 'visitor'], default: 'visitor' })
+  @Column('enum', { enum: ['admin', 'manager', 'visitor'], default: 'visitor' })
   role: string;
 
   @Column({
