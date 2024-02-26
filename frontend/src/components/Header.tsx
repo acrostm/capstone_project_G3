@@ -161,7 +161,7 @@ export function Header() {
                 Sign up
               </Button>
               </>) : (
-                <Button onClick={handleLogout}>
+                <Button variant="solid" color="cyan" onClick={handleLogout}>
                   Sign out
                 </Button>
               )}

@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function Example() {
   return (
     <>
@@ -5,7 +7,7 @@ export default function Example() {
         <header className="mx-auto w-full max-w-7xl px-6 pt-6 sm:pt-10 lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:px-8">
           <a href="#">
             <span className="sr-only">Your Company</span>
-            <img
+            <Image
               className="h-10 w-auto sm:h-12"
               src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
               alt=""
@@ -42,7 +44,7 @@ export default function Example() {
           </div>
         </footer>
         <div className="hidden lg:relative lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:block">
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1470847355775-e0e3c35a9a2c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1825&q=80"
             alt=""
             className="absolute inset-0 h-full w-full object-cover"

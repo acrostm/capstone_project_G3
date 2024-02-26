@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import clsx from 'clsx'
+import React from 'react';
 
 const baseStyles = {
   solid:
@@ -46,9 +47,10 @@ export function Button<
 
   className = clsx(
     baseStyles[variant],
-    variantStyles[variant][color],
+    variantStyles[variant][color] as string, // 类型断言
     className,
   )
+
 
   return typeof props.href === 'undefined' ? (
     <button className={className} {...props} />

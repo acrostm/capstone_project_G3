@@ -27,7 +27,7 @@ export default function UsersPage() {
     };
 
     checkAndRedirect();
-  }, [loggedIn]); // 监听 loggedIn 变化
+  }, [loggedIn, router]); // 监听 loggedIn 变化
 
 
 

@@ -36,7 +36,7 @@ const UserInfoPage = () => {
 
   useEffect(() => {
     fetchUserInfo();
-  }, []); // 监听 loggedIn 变化
+  }, [fetchUserInfo]); // 监听 loggedIn 变化
 
   return (
     <Container>

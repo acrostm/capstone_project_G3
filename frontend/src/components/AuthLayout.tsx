@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { CirclesBackground } from '@/components/CirclesBackground'
 import { Logo } from '@/components/Logo'
+import React from 'react';
 
 export function AuthLayout({
   title,

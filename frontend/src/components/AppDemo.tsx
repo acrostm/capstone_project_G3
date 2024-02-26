@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { motion, useInView, useMotionValue } from 'framer-motion'
 

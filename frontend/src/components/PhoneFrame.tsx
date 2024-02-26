@@ -2,6 +2,7 @@ import Image from 'next/image'
 import clsx from 'clsx'
 
 import frame from '@/images/phone-frame.svg'
+import React from 'react';
 
 function PlaceholderFrame(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
