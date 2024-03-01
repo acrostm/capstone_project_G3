@@ -142,18 +142,15 @@ const Cam = ({ containerStyles }: CamProps) => {
 
   const stopVideo = () => {
     setRecordingStatus(false);
+    setLastTimestamp(0); // 重置时间戳
 
     const tracks = stream && stream.getTracks();
-
-    tracks && (tracks.forEach((track) => {
-      track.stop();
-    }));
+    tracks && (tracks.forEach(track => track.stop()));
 
     videoRef.current && (videoRef.current.srcObject = null);
 
     closeSocket();
   }
-
 
   return (
     <>
