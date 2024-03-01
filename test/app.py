@@ -57,7 +57,7 @@ def handle_image(data, socketId):
         timestamp = data.get('timestamp')
 
     # 解码图像
-    nparr = np.frombuffer(data, np.uint8)
+    nparr = np.frombuffer(image_data, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None or img.size == 0:
         print("Received an empty or invalid image.")
