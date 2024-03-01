@@ -50,9 +50,13 @@ def connected():
 
 @socketio.on('image')
 def handle_image(data, socketId):
-    # 解码图像
-    
+    if isinstance(data, dict) and 'blob' in data:
+        # 提取图像数据
+        image_data = data['blob']
+        # 提取时间戳（如果需要）
+        timestamp = data.get('timestamp')
 
+    # 解码图像
     nparr = np.frombuffer(data, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None or img.size == 0:
