@@ -127,7 +127,6 @@ def handle_image(data, socketId):
     try:
         if isinstance(data, dict) and 'blob' in data:
             image_data = data['blob']
-            timestamp = data.get('timestamp', 0)
 
             nparr = np.frombuffer(image_data, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)

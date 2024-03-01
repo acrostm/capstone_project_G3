@@ -6,8 +6,8 @@ import React, { useRef } from "react";
 import { io, Socket } from 'socket.io-client';
 import useState from 'react-usestateref';
 import Image from 'next/image'
-import { Button } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/Error';
+import { Button } from "./Button";
 
 
 const DEV_HOST = "127.0.0.1:5001"
@@ -40,7 +40,6 @@ const Cam = ({ containerStyles }: CamProps) => {
   const [count, setCount] = useState(5);
   const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
-  const [lastTimestamp, setLastTimestamp] = useState<number>(0); // 新增：用于存储最后一次发送的时间戳
 
 
 
@@ -115,10 +114,8 @@ const Cam = ({ containerStyles }: CamProps) => {
   const loop = (ctx: CanvasRenderingContext2D, video: HTMLVideoElement, canvas: HTMLCanvasElement, crtSocket: Socket | undefined) => {
     if (!statusRef.current) return;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const newTimestamp = Math.max(Date.now(), lastTimestamp + 1); // 生成新的时间戳，确保递增
-    setLastTimestamp(newTimestamp); // 更新状态中的时间戳
     canvas.toBlob(blob => {
-      crtSocket && (crtSocket.emit('image', { blob, timestamp: newTimestamp }, socketRef.current && socketRef.current.id)); // 修改这里，发送blob和时间戳
+      crtSocket && (crtSocket.emit('image', { blob }, socketRef.current && socketRef.current.id)); // 修改这里，发送blob和时间戳
     }, 'image/jpeg');
 
     // requestAnimationFrame(() => {
@@ -142,7 +139,6 @@ const Cam = ({ containerStyles }: CamProps) => {
 
   const stopVideo = () => {
     setRecordingStatus(false);
-    setLastTimestamp(0); // 重置时间戳
 
     const tracks = stream && stream.getTracks();
     tracks && (tracks.forEach(track => track.stop()));
@@ -157,8 +153,8 @@ const Cam = ({ containerStyles }: CamProps) => {
 
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <Button variant="contained" style={{ marginRight: '1rem' }} onClick={startVideo} disabled={recordingStatus}>Start</Button>
-          <Button variant="contained" onClick={stopVideo} disabled={!recordingStatus}>Stop</Button>
+          <Button color={!recordingStatus ? "cyan" : "gray"} style={{ marginRight: '1rem' }} onClick={startVideo} disabled={recordingStatus}>Start</Button>
+          <Button color={recordingStatus ? "cyan" : "gray"} onClick={stopVideo} disabled={!recordingStatus}>Stop</Button>
         </div>
         <div className="flex items-center justify-between  w-96">
           <div>Count:{count}</div>
@@ -168,15 +164,15 @@ const Cam = ({ containerStyles }: CamProps) => {
           </div>
         </div>
       </div>
-      <div style={{ width: WIDTH, margin: '0 auto' }}>
+      <div className="h-screen" style={{ width: WIDTH, margin: '0 auto' }}>
         <div className={`${containerStyles ? containerStyles : ''} relative`}>
           <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: -1
-          }}
+            // style={{
+            //   position: 'absolute',
+            //   top: 0,
+            //   left: 0,
+            //   zIndex: -1
+            // }}
           />
           {imgSrc && recordingStatus ? <Image src={imgSrc} alt="" width={WIDTH} height={HEIGHT} /> : null}
           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
