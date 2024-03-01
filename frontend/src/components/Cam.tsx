@@ -115,7 +115,7 @@ const Cam = ({ containerStyles }: CamProps) => {
   const loop = (ctx: CanvasRenderingContext2D, video: HTMLVideoElement, canvas: HTMLCanvasElement, crtSocket: Socket | undefined) => {
     if (!statusRef.current) return;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const newTimestamp = Math.max(Date.now(), lastTimestamp + 2); // 生成新的时间戳，确保递增
+    const newTimestamp = Math.max(Date.now(), lastTimestamp + 1); // 生成新的时间戳，确保递增
     setLastTimestamp(newTimestamp); // 更新状态中的时间戳
     canvas.toBlob(blob => {
       crtSocket && (crtSocket.emit('image', { blob, timestamp: newTimestamp }, socketRef.current && socketRef.current.id)); // 修改这里，发送blob和时间戳
