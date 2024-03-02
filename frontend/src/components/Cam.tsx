@@ -115,7 +115,7 @@ const Cam = ({ containerStyles }: CamProps) => {
     if (!statusRef.current) return;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(blob => {
-      crtSocket && (crtSocket.emit('image', { blob }, socketRef.current && socketRef.current.id)); // 修改这里，发送blob和时间戳
+      crtSocket && (crtSocket.emit('image', blob, socketRef.current && socketRef.current.id)); // 修改这里，发送blob和时间戳
     }, 'image/jpeg');
 
     // requestAnimationFrame(() => {
