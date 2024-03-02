@@ -125,10 +125,7 @@ def handle_disconnect():
 @socketio.on('image')
 def handle_image(data, socketId):
     try:
-        if isinstance(data, dict) and 'blob' in data:
-            image_data = data['blob']
-
-            nparr = np.frombuffer(image_data, np.uint8)
+            nparr = np.frombuffer(data, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             if img is None or img.size == 0:
                 print("Received an empty or invalid image.")
