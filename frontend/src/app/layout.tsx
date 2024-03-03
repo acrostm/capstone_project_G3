@@ -30,6 +30,10 @@ export default function RootLayout({
       lang="en"
       className={clsx('h-full bg-gray-50 antialiased', inter.variable)}
     >
+    <head>
+      <script async src="https://umami.jiachzha.com/script.js"
+              data-website-id="9fcb0576-503c-43dd-90f4-0c55f40cad46"></script>
+    </head>
     <body className="flex h-full flex-col">
     <div className="flex min-h-full flex-col">{children}</div>
     </body>
