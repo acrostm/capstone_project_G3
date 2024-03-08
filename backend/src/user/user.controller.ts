@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { UserInfoDto } from './dto/user-info.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from './entities/user.entity';
 
 @ApiTags('user')
 @Controller('user')
@@ -56,8 +57,8 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Patch('/update') // 使用 Patch 装饰器定义路由
-  updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    const { id } = req.params; // 获取用户ID
+  updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+    const id = req.user.id; // 获取用户ID
     return this.userService.updateUser(id, updateUserDto);
   }
 }
