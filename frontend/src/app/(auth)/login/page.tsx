@@ -53,6 +53,7 @@ const Login: React.FC = () => {
       const responseData = await response.json();
       localStorage.setItem('token', responseData.data.token);
       localStorage.setItem('justLogin', 'true');
+      localStorage.setItem('loggedIn', 'true');
       // setError(null);
 
       // 获取用户信息

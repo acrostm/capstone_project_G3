@@ -53,17 +53,21 @@ function MobileNavLink(
 }
 
 export function Header() {
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(localStorage.loggedIn === 'true');
   const router = useRouter();
 
   const checkAndRedirect = async () => {
     try {
+      if (!localStorage.token || localStorage.loggedIn === 'false') {
+        return;
+      }
       const response = await fetch('/api/user', {
         headers: {
           Authorization: `Bearer ${localStorage.token}`
         }
       });
       setLoggedIn(response.ok);
+      localStorage.setItem('loggedIn', String(response.ok));
     } catch (error) {
       console.error('Error checking user token:', error);
     }
@@ -72,6 +76,8 @@ export function Header() {
   const handleLogout = () => {
     // 清除 localStorage 中的 token，并显示登录界面
     localStorage.removeItem('token');
+    localStorage.setItem('loggedIn', 'false');
+    setLoggedIn(false);
     router.push('/');
   };
 
