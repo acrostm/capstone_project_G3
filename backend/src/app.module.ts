@@ -6,6 +6,9 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
 import envConfig from '../config/env';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { PostsModule } from './posts/posts.module';
+import { CategoryModule } from './category/category.module';
+import { TagModule } from './tag/tag.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [envConfig.path] }),
@@ -27,6 +30,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    PostsModule,
+    CategoryModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -21,7 +21,7 @@ export class UserService {
   async register(createUser: CreateUserDto) {
     const { username } = createUser;
     console.log('createUser', createUser);
-    const user = await this.userRepository.findOne({
+    const user: User = await this.userRepository.findOne({
       where: { username },
     });
     if (user) {
@@ -29,7 +29,7 @@ export class UserService {
     }
 
     // 使用 fetch 从 API 获取图片链接
-    const response = await fetch(
+    const response: Response = await fetch(
       'https://api.unsplash.com/photos/random/?client_id=ZIhCJTRReRPKlwavLyn1U9BOODcJeLGaemSweEbohm8&collections=3678902&count=1',
     );
     if (!response.ok) {
@@ -42,14 +42,14 @@ export class UserService {
 
     createUser.avatar = data[0].urls.small;
 
-    const newUser = await this.userRepository.create(createUser);
+    const newUser: User = await this.userRepository.create(createUser);
     console.log('newUser', newUser);
     return await this.userRepository.save(newUser);
   }
 
   async findAllUsers() {
-    const users = await this.userRepository.find();
-    return users.map((user) => ({
+    const users: User[] = await this.userRepository.find();
+    return users.map((user: User) => ({
       username: user.username,
       avatar: user.avatar,
     }));
@@ -77,6 +77,9 @@ export class UserService {
       user.avatar = await this.fetchUserAvatar();
     }
 
+    // 更新user update_time
+    user.updateTime = new Date();
+
     // 保存更新后的用户信息
     return this.userRepository.save(user);
   }
@@ -86,7 +89,7 @@ export class UserService {
   }
 
   private async fetchUserAvatar() {
-    const response = await fetch(
+    const response: Response = await fetch(
       'https://api.unsplash.com/photos/random/?client_id=ZIhCJTRReRPKlwavLyn1U9BOODcJeLGaemSweEbohm8&collections=3678902&count=1',
     );
     if (!response.ok) {

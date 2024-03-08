@@ -1,8 +1,19 @@
 // user/entities/user.entity.ts
 import { Exclude } from 'class-transformer';
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { ApiProperty } from '@nestjs/swagger';
+import { PostsEntity } from '../../posts/entities/post.entity';
+import { ConfigService } from '@nestjs/config';
+
 @Entity('user')
 export class User {
   @ApiProperty({ description: 'user id' })
@@ -25,24 +36,28 @@ export class User {
   @Column('enum', { enum: ['admin', 'manager', 'visitor'], default: 'visitor' })
   role: string;
 
-  @Column({
+  @OneToMany(() => PostsEntity, (post) => post.author)
+  posts: PostsEntity[];
+
+  @CreateDateColumn({
     name: 'create_time',
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
   })
   createTime: Date;
 
   @Exclude()
-  @Column({
+  @UpdateDateColumn({
     name: 'update_time',
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
   })
   updateTime: Date;
 
   @BeforeInsert()
-  async encryptPwd() {
+  async encryptPwd(configService: ConfigService) {
     if (!this.password) return;
-    this.password = bcrypt.hashSync(this.password, 10);
+    this.password = bcrypt.hashSync(
+      this.password,
+      configService.get('SALT', 10),
+    );
   }
 }

@@ -1,4 +1,4 @@
-// dto/create-post.dto.ts
+// dto/post.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
