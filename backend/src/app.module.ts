@@ -9,6 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { CategoryModule } from './category/category.module';
 import { TagModule } from './tag/tag.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [envConfig.path] }),
@@ -26,6 +29,19 @@ import { TagModule } from './tag/tag.module';
         timezone: '-08:00',
         synchronize: true,
         autoLoadEntities: true,
+      }),
+    }),
+    MulterModule.register({
+      storage: diskStorage({
+        // 指定文件存储目录
+        destination: path.join(__dirname, '../uploads'),
+        // 通过时间戳来重命名上传的文件名
+        filename: (_, file, callback) => {
+          const fileName = `${
+            new Date().getTime() + path.extname(file.originalname)
+          }`;
+          return callback(null, fileName);
+        },
       }),
     }),
     UserModule,

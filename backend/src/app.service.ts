@@ -6,19 +6,17 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async uploadFile(file: any): Promise<any> {
-    const formData = new FormData();
-    formData.append('file', file.buffer(), file.originalname);
-    console.log('formData', formData);
+  async uploadFile(file: Express.Multer.File): Promise<any> {
+    console.log('file', file);
 
-    const response = await fetch(
+    const response: Response = await fetch(
       'https://r2api.3cap.xyz/6ptvnssij7ipowovndrhch3x1.jpg',
       {
         method: 'PUT',
         headers: {
           'X-Custom-Auth-Key': 'www.3cap.xyz',
         },
-        body: formData,
+        body: file,
       },
     );
     return await response.json();

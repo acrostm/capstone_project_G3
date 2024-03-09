@@ -30,14 +30,12 @@ export class AppController {
       limits: { fileSize: Math.pow(1024, 2) * 9 },
     }),
   )
-  async uploadFile(@UploadedFile() file: any): Promise<AppService> {
+  async uploadFile(
+    @UploadedFile('file') file: Express.Multer.File,
+  ): Promise<AppService> {
     console.log('file', file);
     if (!file) {
       throw new HttpException('文件不能为空', HttpStatus.BAD_REQUEST);
-    }
-    if (file.size > 1024 * 1024 * 10) {
-      // 10MB
-      throw new HttpException('文件大小超过限制', HttpStatus.BAD_REQUEST);
     }
     return await this.appService.uploadFile(file);
   }
