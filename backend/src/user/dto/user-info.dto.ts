@@ -1,14 +1,13 @@
-// dto/user-info.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
 export class UserInfoDto {
   @ApiProperty({ description: '用户名' })
   @IsNotEmpty()
-  username: string;
+  acount: string;
 
   @ApiProperty({ description: '用户昵称' })
-  nickname: string;
+  name: string;
 
   @ApiProperty({ description: '用户头像' })
   avatar: string;

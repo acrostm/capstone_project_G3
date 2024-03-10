@@ -1,24 +1,15 @@
+/*
+ * @Descripttion : 服务文件，提供的服务文件，业务逻辑编写在这里
+ * @Author       : wuhaidong
+ * @Date         : 2022-12-15 17:14:31
+ * @LastEditors  : wuhaidong
+ * @LastEditTime : 2022-12-15 20:49:48
+ */
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
   getHello(): string {
     return 'Hello World!';
-  }
-
-  async uploadFile(file: Express.Multer.File): Promise<any> {
-    console.log('file', file);
-
-    const response: Response = await fetch(
-      'https://r2api.3cap.xyz/6ptvnssij7ipowovndrhch3x1.jpg',
-      {
-        method: 'PUT',
-        headers: {
-          'X-Custom-Auth-Key': 'www.3cap.xyz',
-        },
-        body: file,
-      },
-    );
-    return await response.json();
   }
 }

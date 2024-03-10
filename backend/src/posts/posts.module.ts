@@ -1,8 +1,15 @@
-import { AuthModule } from '../auth/auth.module';
-import { MDMiddleware } from '../core/middleware/md.middleware';
-import { TagModule } from '../tag/tag.module';
-import { CategoryModule } from '../category/category.module';
-import { PostsEntity } from './entities/post.entity';
+/*
+ * @Descripttion :
+ * @Author       : wuhaidong
+ * @Date         : 2023-05-12 12:17:50
+ * @LastEditors  : wuhaidong
+ * @LastEditTime : 2023-07-12 12:19:44
+ */
+import { AuthModule } from './../auth/auth.module';
+import { MDMiddleware } from './../core/middleware/md.middleware';
+import { TagModule } from './../tag/tag.module';
+import { CategoryModule } from './../category/category.module';
+import { PostsEntity } from './entities/posts.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   MiddlewareConsumer,

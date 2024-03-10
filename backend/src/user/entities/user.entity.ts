@@ -1,63 +1,59 @@
-// user/entities/user.entity.ts
-import { Exclude } from 'class-transformer';
+/*
+ * @Descripttion :
+ * @Author       : wuhaidong
+ * @Date         : 2023-05-04 16:14:29
+ * @LastEditors  : wuhaidong
+ * @LastEditTime : 2024-03-10 17:17:51
+ */
 import {
-  BeforeInsert,
+  // BeforeInsert,
+  Entity,
   Column,
   CreateDateColumn,
-  Entity,
-  OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
-import { ApiProperty } from '@nestjs/swagger';
-import { PostsEntity } from '../../posts/entities/post.entity';
-import { ConfigService } from '@nestjs/config';
-
+import { PostsEntity } from 'src/posts/entities/posts.entity';
 @Entity('user')
-export class User {
-  @ApiProperty({ description: 'user id' })
+export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 100, nullable: true })
-  username: string;
+  @Column({ default: null })
+  name: string;
 
-  @Exclude()
-  @Column({ select: false, nullable: true })
-  password: string;
+  @Column({ default: null })
+  account: string;
+
+  @Column()
+  email: string;
+
+  @Column('simple-enum', { enum: ['root', 'author', 'visitor'] })
+  role: string;
+
+  @Column({ default: null, select: false }) // 表示隐藏此列,只在查询时生效
+  password: string; // 密码
+
+  @Column({
+    name: 'verification_code',
+  })
+  verificationCode: string;
 
   @Column({ default: null })
   avatar: string;
 
   @Column({ default: null })
-  email: string;
+  openid: string;
 
-  @Column('enum', { enum: ['admin', 'manager', 'visitor'], default: 'visitor' })
-  role: string;
+  @Column()
+  status: boolean;
+
+  @CreateDateColumn()
+  createTime: Date;
+
+  @CreateDateColumn()
+  updatedTime: Date;
 
   @OneToMany(() => PostsEntity, (post) => post.author)
   posts: PostsEntity[];
-
-  @CreateDateColumn({
-    name: 'create_time',
-    type: 'timestamp',
-  })
-  createTime: Date;
-
-  @Exclude()
-  @UpdateDateColumn({
-    name: 'update_time',
-    type: 'timestamp',
-  })
-  updateTime: Date;
-
-  @BeforeInsert()
-  async encryptPwd(configService: ConfigService) {
-    if (!this.password) return;
-    this.password = bcrypt.hashSync(
-      this.password,
-      configService.get('SALT', 10),
-    );
-  }
 }

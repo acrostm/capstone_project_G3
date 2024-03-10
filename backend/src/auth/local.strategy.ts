@@ -1,38 +1,44 @@
-// auth/local.strategy.ts
+/*
+ * @Descripttion :
+ * @Author       : wuhaidong
+ * @Date         : 2023-05-10 12:12:26
+ * @LastEditors  : wuhaidong
+ * @LastEditTime : 2023-08-30 22:59:51
+ */
 import { compareSync } from 'bcryptjs';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IStrategyOptions, Strategy } from 'passport-local';
 import { Repository } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { UserEntity } from '../user/entities/user.entity';
 
 export class LocalStorage extends PassportStrategy(Strategy) {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {
-    // 如果不是username、password， 在constructor中配置
+    // 如果不是email、password， 在constructor中配置
     super({
-      usernameField: 'username',
+      usernameField: 'email',
       passwordField: 'password',
     } as IStrategyOptions);
   }
 
-  async validate(username: string, password: string) {
+  async validate(email: string, password: string) {
     // 因为密码是加密后的，没办法直接对比用户名密码，只能先根据用户名查出用户，再比对密码
     const user = await this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.password')
-      .where('user.username=:username', { username })
+      .where('user.email=:email', { email })
       .getOne();
 
     if (!user) {
-      throw new BadRequestException('no matched username！');
+      throw new BadRequestException('邮箱不存在，请先注册！');
     }
 
     if (!compareSync(password, user.password)) {
-      throw new BadRequestException('wrong password！');
+      throw new BadRequestException('密码错误！');
     }
 
     return user;

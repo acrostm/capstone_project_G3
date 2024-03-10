@@ -1,22 +1,42 @@
-// dto/post.dto.ts
+/*
+ * @Descripttion :
+ * @Author       : wuhaidong
+ * @Date         : 2023-05-04 16:14:29
+ * @LastEditors  : wuhaidong
+ * @LastEditTime : 2023-05-04 16:31:28
+ */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsString, IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateUserDto {
-  @ApiProperty({ description: 'username' })
-  @IsNotEmpty({ message: 'Please type in username' })
-  username: string;
+  id: string;
 
-  @ApiProperty({ description: 'password' })
-  @IsNotEmpty({ message: 'Please type in password' })
-  password: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
-  @ApiProperty({ description: 'user role' })
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  account: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   role: string;
 
-  @ApiProperty({ description: 'user avatar' })
-  avatar: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  password: string;
 
-  @ApiProperty({ description: 'email' })
-  email: string;
+  @ApiProperty()
+  @IsBoolean()
+  status: boolean;
+
+  @ApiProperty()
+  createTime: Date;
+
+  updatedTime: Date;
 }
