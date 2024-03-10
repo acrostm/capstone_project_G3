@@ -1,10 +1,3 @@
-/*
- * @Descripttion : 接口过滤器
- * @Author       : wuhaidong
- * @Date         : 2023-04-27 15:02:47
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-10-31 20:36:18
- */
 import {
   ExceptionFilter,
   Catch,
@@ -14,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import * as dayjs from 'dayjs';
-import { LoggerService } from '../../../core/logger/logger.service';
+import { LoggerService } from '../../logger/logger.service';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {

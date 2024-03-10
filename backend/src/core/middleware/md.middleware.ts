@@ -1,10 +1,3 @@
-/*
- * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2023-07-12 12:19:34
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-08-10 17:21:06
- */
 import { BadRequestException } from '@nestjs/common';
 /***
  * md 文件转为html, 依赖于showdown来处理

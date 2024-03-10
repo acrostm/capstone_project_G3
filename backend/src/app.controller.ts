@@ -1,13 +1,7 @@
-/*
- * @Descripttion : 控制器文件，可以简单理解为路由文件
- * @Author       : wuhaidong
- * @Date         : 2022-12-15 17:14:31
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2024-03-10 17:10:52
- */
 import {
   Controller,
   Get,
+  HttpException,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -49,7 +43,7 @@ export class AppController {
       limits: { fileSize: Math.pow(1024, 2) * 9 },
     }),
   )
-  async uploadFile(@UploadedFile() file: any): Promise<any> {
-    console.log('file--', file);
+  async uploadFile(@UploadedFile() file: Express.Multer.File, filePrefix: string): Promise<any> {
+    return this.appService.uploadFile(file, filePrefix);
   }
 }

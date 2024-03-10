@@ -48,18 +48,49 @@ const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
     }
   }
 
+  const handleUploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) {
+      throw new Error('Failed to upload avatar');
+    }
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`/api/user/avatar`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${localStorage.token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload avatar');
+      }
+
+      router.push('/users');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+    }
+  };
+
   return (
     <div className="overflow-hidden bg-white shadow sm:rounded-lg mt-28 ml-9 mr-9">
       <div className="relative px-4 py-6 sm:px-6 flex justify-center items-center">
         <span className="relative inline-block h-18 w-18 rounded-full">
           <img
             className="max-h-full max-w-full rounded-full"
-            src={userInfo.avatar || "https://www.gravatar.com/avatar/"}
+            src={userInfo.avatar || 'https://www.gravatar.com/avatar/'}
             alt="avatar"
           />
         </span>
-        <Button className="absolute bottom-0 right-0 mb-20 mr-6" variant="outline">Edit Personal Info</Button>
-        <Button className="absolute bottom-0 right-0 mb-6 mr-6" variant="solid" onClick={handleShuffleAvatar}>Random Avatar</Button>
+        <label className="absolute bottom-0 right-0 mb-20 mr-6">
+          <span className="text-blue-500 hover:text-blue-700">Upload Avatar</span>
+          <input type="file" className="hidden" onChange={handleUploadAvatar} />
+        </label>
+        <Button className="absolute bottom-0 right-0 mb-6 mr-6" variant="solid" onClick={handleShuffleAvatar}>Random
+          Avatar</Button>
       </div>
       <div className="border-t border-gray-100">
         <dl className="divide-y divide-gray-100">

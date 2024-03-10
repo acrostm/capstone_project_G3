@@ -1,11 +1,4 @@
-/*
- * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2023-05-12 12:22:34
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-08-02 18:09:01
- */
-import { PostsEntity } from 'src/posts/entities/posts.entity';
+import { PostsEntity } from '../../posts/entities/post.entity';
 import {
   Column,
   CreateDateColumn,
@@ -17,8 +10,8 @@ import {
 
 @Entity('category')
 export class CategoryEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   name: string;
@@ -28,14 +21,14 @@ export class CategoryEntity {
 
   @CreateDateColumn({
     type: 'timestamp',
-    comment: '创建时间',
+    comment: 'create time',
     name: 'create_time',
   })
   createTime: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    comment: '更新时间',
+    comment: 'update time',
     name: 'update_time',
   })
   updateTime: Date;

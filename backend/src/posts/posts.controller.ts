@@ -1,11 +1,3 @@
-/*
- * @Descripttion:
- * @version:
- * @Author: koala
- * @Date: 2021-12-11 15:48:24
- * @LastEditors: koala
- * @LastEditTime: 2022-01-21 10:50:48
- */
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
 import {
@@ -22,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CreatePostDto, PostsRo } from './dto/post.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard, Roles } from './../auth/role.guard';
+import { RolesGuard, Roles } from '../auth/role.guard';
 
 @ApiTags('文章')
 @Controller('post')
@@ -30,12 +22,12 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   /**
-   * 创建文章,只有author和root有创建权限
+   * 创建文章
    */
   @ApiOperation({ summary: '创建文章' })
   @ApiBearerAuth()
   @Post()
-  @Roles('author', 'root')
+  @Roles('admin', 'root')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   async create(@Body() post: CreatePostDto, @Req() req) {
     return await this.postsService.create(req.user, post);
@@ -46,10 +38,13 @@ export class PostsController {
    */
   @ApiOperation({ summary: '获取文章列表' })
   @Get('/list')
-  async findAll(@Body() body): Promise<PostsRo> {
-    return await this.postsService.findAll(body);
+  async findAll(
+    @Query() query,
+    @Query('pageSize') pageSize: number,
+    @Query('pageNum') pageNum: number,
+  ): Promise<PostsRo> {
+    return await this.postsService.findAll(query);
   }
-
   /**
    * 获取归档列表
    */
@@ -87,7 +82,7 @@ export class PostsController {
   @ApiBearerAuth()
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
-  async update(@Param('id') id: string, @Body() post: CreatePostDto) {
+  async update(@Param('id') id: number, @Body() post: CreatePostDto) {
     return await this.postsService.updateById(id, post);
   }
 

@@ -1,10 +1,3 @@
-/*
- * @Descripttion : 模块文件，在NestJS世界里主要操作的就是模块
- * @Author       : wuhaidong
- * @Date         : 2022-12-15 17:14:31
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2024-03-10 17:12:12
- */
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
@@ -40,10 +33,7 @@ import { CategoryModule } from './category/category.module';
         autoLoadEntities: true,
       }),
     }),
-    // 上传文件保存的目录
-    MulterModule.register({
-      dest: './uploads',
-    }),
+    MulterModule,
     PostsModule,
     UserModule,
     AuthModule,

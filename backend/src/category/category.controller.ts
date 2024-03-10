@@ -7,7 +7,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
-  @ApiOperation({ summary: '创建分类' })
+  @ApiOperation({ summary: 'create category' })
   @Post()
   async create(@Body() body: CreateCategoryDto) {
     return await this.categoryService.create(body.name);

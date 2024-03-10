@@ -1,77 +1,96 @@
-/*
- * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2023-05-04 16:14:29
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-05-11 17:29:11
- */
+// user/user.controller.ts
 import {
   Controller,
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   UseInterceptors,
-  UseGuards,
   ClassSerializerInterceptor,
+  UseGuards,
+  Req,
+  Patch,
+  UploadedFile,
+  HttpException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { RegisterUserDto } from './dto/register-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  ApiBearerAuth, ApiBody, ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserInfoDto } from './dto/user-info.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from './entities/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
-@ApiTags('用户')
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({ summary: '邮箱发送验证码' })
-  @Post('sendcode')
-  async sendVerificationCode(@Body('email') email: string): Promise<void> {
-    await this.userService.sendVerificationCode(email);
-  }
-
-  @ApiOperation({ summary: '注册用户' })
-  @ApiResponse({ status: 200, type: UserInfoDto })
+  @ApiOperation({ summary: 'register user' })
+  @ApiResponse({ status: 201, type: UserInfoDto })
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
-  register(@Body() registerUser: RegisterUserDto) {
-    return this.userService.register(registerUser);
+  register(@Body() createUser: CreateUserDto) {
+    return this.userService.register(createUser);
   }
 
-  @ApiOperation({ summary: '新增' })
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
-  @ApiOperation({ summary: '列表' })
+  @ApiOperation({ summary: '获取用户信息' })
+  @ApiBearerAuth() // swagger文档设置token
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  getUserInfo(@Req() req) {
+    console.log(req.user, '<-req.user');
+    return req.user;
   }
 
-  @ApiOperation({ summary: '详情' })
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  @ApiOperation({ summary: '获取所有用户列表' })
+  @ApiBearerAuth() // swagger文档设置token
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/all')
+  getAllUserList() {
+    return this.userService.findAllUsers();
   }
 
-  @ApiOperation({ summary: '更新' })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @ApiOperation({ summary: '更新用户信息' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/update') // 使用 Patch 装饰器定义路由
+  updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+    const id = req.user.id; // 获取用户ID
+    return this.userService.updateUser(id, updateUserDto);
   }
 
-  @ApiOperation({ summary: '删除' })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  @ApiOperation({ summary: '上传用户头像' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBody({
+    description: 'Avatar to upload',
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
+  @Patch('/avatar')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 9 },
+    }),
+  )
+  uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File): Promise<any> {
+    const id = req.user.id;
+    console.log('file', file, id,'<-file');
+    return this.userService.uploadAvatar(id, file);
   }
 }

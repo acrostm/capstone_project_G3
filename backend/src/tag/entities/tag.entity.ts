@@ -1,11 +1,4 @@
-/*
- * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2023-05-12 12:22:09
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-08-02 17:54:42
- */
-import { PostsEntity } from 'src/posts/entities/posts.entity';
+import { PostsEntity } from '../../posts/entities/post.entity';
 import {
   Column,
   CreateDateColumn,
@@ -17,8 +10,8 @@ import {
 
 @Entity('tag')
 export class TagEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   // 标签名
   @Column()

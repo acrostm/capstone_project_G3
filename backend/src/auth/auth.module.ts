@@ -1,49 +1,37 @@
-/*
- * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2023-05-10 12:11:24
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-08-30 22:55:19
- */
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
-import { HttpModule } from '@nestjs/axios';
-import { UserEntity } from '../user/entities/user.entity';
-import { UserModule } from '../user/user.module';
 import { LocalStorage } from './local.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStorage } from './jwt.strategy';
+import { UserModule } from '../user/user.module';
 import { LoggerService } from '../core/logger/logger.service';
 
-const jwtModule = JwtModule.register({
-  secret: 'test123456',
-  signOptions: { expiresIn: '7d' }, // 12小时： 12h
+const jwtModule: DynamicModule = JwtModule.registerAsync({
+  imports: [ConfigModule],
+  inject: [ConfigService],
+  useFactory: async (configService: ConfigService) => {
+    return {
+      secret: configService.get('SECRET', 'test123456'),
+      signOptions: { expiresIn: '4h' },
+    };
+  },
 });
-
-// 实际开发 从环境变量中获取
-// const jwtModule = JwtModule.registerAsync({
-//   inject: [ConfigService],
-//   useFactory: async (configService: ConfigService) => {
-//     return {
-//       secret: configService.get('SECRET', 'test123456'),
-//       signOptions: { expiresIn: '4h' },
-//     };
-//   },
-// });
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    UserModule,
+    TypeOrmModule.forFeature([User]),
+    ConfigModule,
     PassportModule,
     jwtModule,
-    HttpModule,
+    UserModule,
   ],
+  exports: [jwtModule],
   controllers: [AuthController],
   providers: [AuthService, LocalStorage, JwtStorage, LoggerService],
-  exports: [jwtModule],
 })
 export class AuthModule {}

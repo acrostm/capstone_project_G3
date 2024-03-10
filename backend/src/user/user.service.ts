@@ -1,145 +1,135 @@
-/*
- * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2023-05-04 16:14:29
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-08-30 22:57:45
- */
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { Repository } from 'typeorm';
+// user/user.service.ts
+import * as bcrypt from 'bcryptjs';
+import { User } from './entities/user.entity';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './entities/user.entity';
-import { RegisterUserDto } from './dto/register-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import randomName from 'src/utils/randomName';
-import * as bcrypt from 'bcryptjs';
-import { WechatUserInfo } from '../auth/auth.interface';
-import { MailerService } from '@nestjs-modules/mailer';
+import { Repository } from 'typeorm';
+import { AppService } from '../app.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
-    private readonly mailerService: MailerService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    private readonly appService: AppService,
   ) {}
 
   /**
-   * 注册：邮箱、验证码、密码
-   * @param registerUser
+   * 账号密码注册
+   * @param createUser
    */
-  async register(registerUser: RegisterUserDto) {
-    const { verificationCode, password, email } = registerUser;
-
-    const existUser = await this.userRepository.findOne({
-      where: { email },
+  async register(createUser: CreateUserDto) {
+    const { username } = createUser;
+    console.log('createUser', createUser);
+    const user: User = await this.userRepository.findOne({
+      where: { username },
     });
-
-    if (existUser.status) {
-      throw new HttpException('该邮箱已存在', HttpStatus.BAD_REQUEST);
+    if (user) {
+      throw new HttpException('username already exits', HttpStatus.BAD_REQUEST);
     }
 
-    if (!existUser || existUser.verificationCode !== verificationCode) {
-      throw new HttpException('验证码不正确，请核对！', HttpStatus.BAD_REQUEST);
-    }
-
-    const user = {
-      ...existUser,
-      email,
-      password: bcrypt.hashSync(password, 10),
-      role: 'visitor',
-      name: randomName(),
-      status: true,
-    };
-
-    await this.userRepository.update(existUser.id, user);
-    return await this.userRepository.findOne({ where: { email } });
-  }
-
-  async sendVerificationCode(email: string): Promise<void> {
-    // 发邮件之前看当前这个邮箱是否已经注册
-    const user = await this.userRepository.findOneBy({ email });
-    if (user?.status) {
+    // 使用 fetch 从 API 获取图片链接
+    const response: Response = await fetch(
+      'https://api.unsplash.com/photos/random/?client_id=ZIhCJTRReRPKlwavLyn1U9BOODcJeLGaemSweEbohm8&collections=3678902&count=1',
+    );
+    if (!response.ok) {
       throw new HttpException(
-        '该邮箱已注册，如忘记密码，请通过“忘记密码”找回。',
-        HttpStatus.BAD_REQUEST,
+        'Failed to fetch image',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+    const data = await response.json();
 
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000,
-    ).toString();
+    createUser.avatar = data[0].urls.small;
 
-    const mailOptions = {
-      to: email,
-      subject: '韭菜团账号注册',
-      template: 'verification-code',
-      context: {
-        verificationCode,
-      },
-    };
-    await this.mailerService.sendMail(mailOptions);
-    // Save verification code to database
-    if (!user) {
-      await this.userRepository.save({
-        email,
-        verificationCode,
-        status: false,
-      });
-    } else {
-      user.verificationCode = verificationCode;
-      user.status = false;
-      await this.userRepository.save(user);
-    }
-  }
-
-  // async validateUser(
-  //   email: string,
-  //   verificationCode: string,
-  // ): Promise<User | null> {
-  //   const user = await this.userRepository.findOneBy({ email });
-  //   if (!user || user.verificationCode !== verificationCode) {
-  //     return null;
-  //   }
-  //   user.status = true;
-  //   await this.userRepository.save(user);
-  //   return user;
-  // }
-
-  // 微信扫码登录注册
-  async registerByWechat(userInfo: WechatUserInfo) {
-    const { nickname, openid, headimgurl } = userInfo;
-    const newUser = this.userRepository.create({
-      name: nickname,
-      openid,
-      avatar: headimgurl,
-    });
-
+    const newUser: User = this.userRepository.create(createUser);
+    console.log('newUser', newUser);
     return await this.userRepository.save(newUser);
   }
 
-  async findByOpenid(openid: string) {
-    return await this.userRepository.findOne({ where: { openid } });
+  async findAllUsers() {
+    const users: User[] = await this.userRepository.find();
+    return users.map((user: User) => ({
+      username: user.username,
+      avatar: user.avatar,
+    }));
   }
 
-  create(createUserDto: CreateUserDto) {
-    return this.userRepository.save(createUserDto);
+  async findOne(id: string) {
+    return await this.userRepository.findOne({ where: { id } });
   }
 
-  findAll() {
-    return this.userRepository.find();
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    // 检查是否有更新用户信息的请求
+    const { username, password, email, role } = updateUserDto;
+    if (username) user.username = username;
+    if (password) user.password = await this.encryptPassword(password);
+    if (email) user.email = email;
+    if (role) user.role = role;
+
+    // 如果没有任何字段收到，则重新获取用户头像
+    if (!(username || password || email || role)) {
+      user.avatar = await this.fetchUserAvatar();
+    }
+
+    // 更新user update_time
+    user.updateTime = new Date();
+
+    // 保存更新后的用户信息
+    return this.userRepository.save(user);
   }
 
-  findOne(id: string) {
-    return this.userRepository.findOneBy({ id });
+  async uploadAvatar(id: string, file: Express.Multer.File): Promise<any> {
+    const filePrefix = 'Avatar-';
+    console.log('file', file, filePrefix, '<-file, filePrefix')
+    const user: User = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (!file) {
+      throw new HttpException('文件上传失败', HttpStatus.BAD_REQUEST);
+    }
+
+    // 调用 AppService 的 uploadFile 方法上传文件
+    const data = await this.appService.uploadFile(file, filePrefix);
+
+    // 将返回的 imageUrl 保存到 user 的 avatarUrl 字段中
+    user.avatar = data.imageUrl;
+
+    return this.userRepository.save(user);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto);
+  private async encryptPassword(password: string) {
+    return bcrypt.hashSync(password, 10);
   }
 
-  remove(id: string) {
-    return this.userRepository.delete(id);
+  private async fetchUserAvatar() {
+    const response: Response = await fetch(
+      'https://api.unsplash.com/photos/random/?client_id=ZIhCJTRReRPKlwavLyn1U9BOODcJeLGaemSweEbohm8&collections=3678902&count=1',
+    );
+    if (!response.ok) {
+      throw new HttpException(
+        'Failed to fetch image',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    const data = await response.json();
+    return data[0].urls.small;
   }
+
+  remove(id: number) {
+    return `This action removes a #${id} user`;
+  }
+
+  // comparePassword(password, libPassword) {
+  //   return compareSync(password, libPassword);
+  // }
 }

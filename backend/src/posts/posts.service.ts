@@ -1,11 +1,10 @@
-import { CategoryService } from './../category/category.service';
+import { CategoryService } from '../category/category.service';
 import { CreatePostDto, PostInfoDto, PostsRo } from './dto/post.dto';
-import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getRepository, Repository, Not, IsNull } from 'typeorm';
-import { PostsEntity } from './entities/posts.entity';
-import { TagService } from './../tag/tag.service';
-import { count } from 'console';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+import { PostsEntity } from './entities/post.entity';
+import { TagService } from '../tag/tag.service';
 
 @Injectable()
 export class PostsService {
@@ -16,20 +15,20 @@ export class PostsService {
     private readonly tagService: TagService,
   ) {}
 
-  async create(user, post: CreatePostDto): Promise<string> {
+  async create(user, post: CreatePostDto): Promise<number> {
     const { title } = post;
     if (!title) {
-      throw new HttpException('缺少文章标题', HttpStatus.BAD_REQUEST);
+      throw new HttpException('need post title', HttpStatus.BAD_REQUEST);
     }
 
     const doc = await this.postsRepository.findOne({
       where: { title },
     });
     if (doc) {
-      throw new HttpException('文章已存在', HttpStatus.BAD_REQUEST);
+      throw new HttpException('post already exist', HttpStatus.BAD_REQUEST);
     }
 
-    const { tag, category = '', status, isRecommend } = post;
+    const { tag, category = 0, status, isRecommend, coverUrl } = post;
 
     const categoryDoc = await this.categoryService.findById(category);
 
@@ -40,6 +39,7 @@ export class PostsService {
       category: categoryDoc,
       tags: tags,
       author: user,
+      coverUrl: coverUrl || 'https://r2.3cap.xyz/6ptvnssij7ipowovndrhch3x1.jpg',
     };
     if (status === 'publish') {
       Object.assign(postParam, {
@@ -47,15 +47,19 @@ export class PostsService {
       });
     }
 
-    const newPost: PostsEntity = await this.postsRepository.create({
+    const newPost: PostsEntity = this.postsRepository.create({
       ...postParam,
     });
     const created = await this.postsRepository.save(newPost);
     return created.id;
   }
 
-  async findAll(body): Promise<PostsRo> {
-    const qb = await this.postsRepository
+  async findAll(query: {
+    [x: string]: any;
+    pageNum?: 1;
+    pageSize?: 10;
+  }): Promise<PostsRo> {
+    const qb: SelectQueryBuilder<PostsEntity> = this.postsRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.category', 'category')
       .leftJoinAndSelect('post.tags', 'tag')
@@ -65,28 +69,13 @@ export class PostsService {
     qb.orderBy('post.create_time', 'DESC');
 
     const count = await qb.getCount();
-    const { pageNum = 1, pageSize = 10, ...params } = body;
+    const { pageNum = 1, pageSize = 10, ...params } = query;
     qb.limit(pageSize);
     qb.offset(pageSize * (pageNum - 1));
 
-    const posts: any = await qb.getMany();
+    const posts = await qb.getMany();
     const result: PostInfoDto[] = posts.map((item) => item.toResponseObject());
     return { list: result, count: count };
-
-    //  使用find 方式实现
-    /**
-     const { pageNum = 1, pageSize = 10, ...params } = query;
-    const result = await this.postsRepository.findAndCount({
-      relations: ['category', 'author', "tags"],
-      order: {
-        id: 'DESC',
-      },
-      skip: (pageNum - 1) * pageSize,
-      take: pageSize,
-    });
-    const list = result[0].map((item) => item.toResponseObject());
-    return { list, count: result[1] };
-     */
   }
 
   async findById(id): Promise<any> {
@@ -98,18 +87,24 @@ export class PostsService {
       .where('post.id=:id')
       .setParameter('id', id);
 
-    const result: any = await qb.getOne();
+    const result = await qb.getOne();
     if (!result)
-      throw new HttpException(`id为${id}的文章不存在`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `post id ${id} doesn't exist`,
+        HttpStatus.BAD_REQUEST,
+      );
     await this.postsRepository.update(id, { count: result.count + 1 });
 
     return result.toResponseObject();
   }
 
-  async updateById(id: string, post: any): Promise<string> {
-    const existPost = await this.postsRepository.findOne({ where: { id } });
+  async updateById(id, post): Promise<number> {
+    const existPost = await this.postsRepository.findOne(id);
     if (!existPost) {
-      throw new HttpException(`id为${id}的文章不存在`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `post id ${id} doesn't exist`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const { category, tag, status } = post;
@@ -127,39 +122,40 @@ export class PostsService {
     return (await this.postsRepository.save(updatePost)).id;
   }
 
-  async updateViewById(id: string) {
-    const post = await this.postsRepository.findOne({ where: { id } });
-    const updatePost = await this.postsRepository.merge(post, {
+  async updateViewById(id) {
+    const post: PostsEntity = await this.postsRepository.findOne(id);
+    const updatePost: PostsEntity = this.postsRepository.merge(post, {
       count: post.count + 1,
     });
     this.postsRepository.save(updatePost);
   }
 
   async getArchives() {
-    const data = await this.postsRepository
+    return await this.postsRepository
       .createQueryBuilder('post')
       .select([`DATE_FORMAT(update_time, '%Y年%m') time`, `COUNT(*) count`])
       .where('status=:status', { status: 'publish' })
       .groupBy('time')
-      .orderBy('time', 'DESC')
+      .orderBy('update_time', 'DESC')
       .getRawMany();
-    return data;
   }
 
   async getArchiveList(time) {
-    const data = await this.postsRepository
+    return await this.postsRepository
       .createQueryBuilder('post')
       .where('status=:status', { status: 'publish' })
       .andWhere(`DATE_FORMAT(update_time, '%Y年%m')=:time`, { time: time })
       .orderBy('update_time', 'DESC')
       .getRawMany();
-    return data;
   }
 
-  async remove(id: string) {
-    const existPost = await this.postsRepository.findOne({ where: { id } });
+  async remove(id) {
+    const existPost = await this.postsRepository.findOne(id);
     if (!existPost) {
-      throw new HttpException(`id为${id}的文章不存在`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `post id ${id} doesn't exist`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return await this.postsRepository.remove(existPost);
   }

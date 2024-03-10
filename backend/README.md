@@ -1,11 +1,23 @@
 <!--
  * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2022-12-15 17:14:31
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-10-31 22:50:54
+ * @Author       : acrostm
+ * @Date         : 2024-03-10 13:44:13
+ * @LastEditors  : acrostm
+ * @LastEditTime : 2024-03-10 13:44:13
 -->
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+</p>
 
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
+
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+
+## Description
+
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 ## Installation
 
 ```bash
@@ -55,13 +67,16 @@ nest g co posts
 nest g mi counter
 
 # module
-nest g module gir
+nest g module <module name>
 
 # controller
-nest g controller girl --no-spec
+nest g controller <module name> --no-spec
 
 # service**
-nest g service girl --no-spec
+nest g service <module name> --no-spec
+
+# Create a entire module with interactive CLI at once
+nest g resource <module name>
 ```
 
 ## Support
@@ -70,7 +85,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-- Author - [hayden](https://github.com/wuhaidong-me)
+- Author - [acrostm](https://github.com/acrostm)
 - Website - [https://nestjs.com](https://nestjs.com/)
 
 ## License

@@ -1,20 +1,19 @@
-/*
- * @Descripttion :
- * @Author       : wuhaidong
- * @Date         : 2023-05-04 16:14:29
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-08-30 22:57:32
- */
-import { Module } from '@nestjs/common';
+// user/user.module.ts
+import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { UserEntity } from './entities/user.entity';
+import { AppModule } from '../app.module';
+import { AppService } from '../app.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    forwardRef(() => AppModule),
+  ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, AppService],
   exports: [UserService],
 })
 export class UserModule {}

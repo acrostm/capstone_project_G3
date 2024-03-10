@@ -1,10 +1,3 @@
-/*
- * @Descripttion : 
- * @Author       : wuhaidong
- * @Date         : 2023-05-12 12:20:12
- * @LastEditors  : wuhaidong
- * @LastEditTime : 2023-08-10 17:05:48
- */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
@@ -22,8 +15,9 @@ export class CreatePostDto {
   @ApiPropertyOptional({ description: '文章状态' })
   readonly status: string;
 
+  @IsNumber()
   @ApiProperty({ description: '文章分类' })
-  readonly category: string;
+  readonly category: number;
 
   @ApiPropertyOptional({ description: '是否推荐' })
   readonly isRecommend: boolean;
