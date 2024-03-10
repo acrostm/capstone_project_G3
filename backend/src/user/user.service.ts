@@ -6,12 +6,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
+import { AppService } from '../app.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly appService: AppService,
   ) {}
 
   /**
@@ -42,7 +44,7 @@ export class UserService {
 
     createUser.avatar = data[0].urls.small;
 
-    const newUser: User = await this.userRepository.create(createUser);
+    const newUser: User = this.userRepository.create(createUser);
     console.log('newUser', newUser);
     return await this.userRepository.save(newUser);
   }
@@ -81,6 +83,27 @@ export class UserService {
     user.updateTime = new Date();
 
     // 保存更新后的用户信息
+    return this.userRepository.save(user);
+  }
+
+  async uploadAvatar(id: string, file: Express.Multer.File): Promise<any> {
+    const filePrefix = 'Avatar-';
+    console.log('file', file, filePrefix, '<-file, filePrefix')
+    const user: User = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (!file) {
+      throw new HttpException('文件上传失败', HttpStatus.BAD_REQUEST);
+    }
+
+    // 调用 AppService 的 uploadFile 方法上传文件
+    const data = await this.appService.uploadFile(file, filePrefix);
+
+    // 将返回的 imageUrl 保存到 user 的 avatarUrl 字段中
+    user.avatar = data.imageUrl;
+
     return this.userRepository.save(user);
   }
 

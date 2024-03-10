@@ -5,7 +5,6 @@ import {
   SetMetadata,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 
 export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
@@ -14,7 +13,6 @@ export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 export class RolesGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    // private readonly jwtService: JwtService,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
