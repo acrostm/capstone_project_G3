@@ -11,6 +11,7 @@ export function NavLinks() {
   return [
     ['Intro', '/'],
     ['AI', '/ml'],
+    ['Articles', '/posts'],
     ['Account', '/info'],
     ['About us', '/about'],
   ].map(([label, href], index) => (

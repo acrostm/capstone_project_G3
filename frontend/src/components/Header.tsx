@@ -136,6 +136,9 @@ export function Header() {
                             <MobileNavLink href="/ml">
                               AI
                             </MobileNavLink>
+                            <MobileNavLink href="/posts">
+                              Posts
+                            </MobileNavLink>
                             <MobileNavLink href="/info">
                               Account
                             </MobileNavLink>
