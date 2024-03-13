@@ -11,6 +11,7 @@ export function NavLinks() {
   return [
     ['Intro', '/'],
     ['AI', '/ml'],
+    ['Records', '/records'],
     ['Articles', '/posts'],
     ['Account', '/info'],
     ['About us', '/about'],

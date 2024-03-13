@@ -136,6 +136,9 @@ export function Header() {
                             <MobileNavLink href="/ml">
                               AI
                             </MobileNavLink>
+                            <MobileNavLink href="/records">
+                              Records
+                            </MobileNavLink>
                             <MobileNavLink href="/posts">
                               Posts
                             </MobileNavLink>
@@ -149,10 +152,10 @@ export function Header() {
                               <><Button href="/login" variant="outline">
                                 Log in
                               </Button><Button href="/register">Sign up</Button></>) : (
-                                <Button variant="solid" color="cyan" onClick={handleLogout}>
-                                  Sign out
-                                </Button>
-                              )}
+                              <Button variant="solid" color="cyan" onClick={handleLogout}>
+                                Sign out
+                              </Button>
+                            )}
                           </div>
                         </Popover.Panel>
                       </>
@@ -167,11 +170,11 @@ export function Header() {
               </Button><Button href="/register" className="hidden lg:block">
                 Sign up
               </Button>
-              </>) : (
-                <Button variant="solid" color="cyan" onClick={handleLogout}>
-                  Sign out
-                </Button>
-              )}
+            </>) : (
+              <Button variant="solid" color="cyan" onClick={handleLogout}>
+                Sign out
+              </Button>
+            )}
           </div>
         </Container>
       </nav>
