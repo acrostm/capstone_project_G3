@@ -8,7 +8,10 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async uploadFile(file: Express.Multer.File, filePrefix: string='Uploaded-'): Promise<any> {
+  async uploadFile(
+    file: Express.Multer.File,
+    filePrefix: string = 'Uploaded-',
+  ): Promise<any> {
     if (!file) {
       throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
     }
@@ -19,7 +22,7 @@ export class AppService {
       contentType: file.mimetype, // 设置正确的 Content-Type
     });
 
-    const response: Response = await fetch(
+    const response = await fetch(
       'https://r2api.3cap.xyz/' + filePrefix + '-' + file.originalname,
       {
         method: 'PUT',
@@ -31,6 +34,6 @@ export class AppService {
       },
     );
     console.log(`File: ${file.originalname} uploaded to R2 Storage.`);
-    return (response.ok ? { imageUrl: response.url } : 'File upload failed.');
+    return response.ok ? { imageUrl: response.url } : 'File upload failed.';
   }
 }
