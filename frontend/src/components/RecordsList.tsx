@@ -4,11 +4,15 @@ import { Container } from '@/components/Container'
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 
+import Calendar from './Calendar';
+
 const MOOD = {
   1: '😞',
   2: '😡',
   3: '🤩',
 }
+
+// const WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const CHART_HEIGHT = 450;
 
@@ -17,15 +21,37 @@ enum MoodIndex {
   Angry,
   Sad
 }
-interface Record {
+interface DailyRecord {
   // dateTime: Date,
-  dateTime: string;
+  dateTime: string,
   count: number,
   mood: MoodIndex
 }
+
+
 export function RecordList() {
   // const records = await getAllRecords()
-  const records: Record[] = [{
+
+  const monthlyRecords = [{
+    crtDate: 1, // 当月的第几日
+    count: 15
+  }, {
+    crtDate: 3,
+    count: 9
+  }, {
+    crtDate: 6,
+    count: 150
+  }, {
+    crtDate: 7,
+    count: 50
+  }, {
+    crtDate: 17,
+    count: 100
+  },]
+
+
+  // 每日的records
+  const dailyRecords: DailyRecord[] = [{
     // dateTime: new Date(),
     dateTime: '6:00',
     count: 15,
@@ -48,175 +74,17 @@ export function RecordList() {
     mood: 1,
   }];
 
-  const moodData = records.map((record) => record.mood)
+  const moodData = dailyRecords.map((record) => record.mood)
 
-  const countData = records.map((record) => record.count)
+  const countData = dailyRecords.map((record) => record.count)
 
-  const categories = records.map((record) => record.dateTime)
+  const categories = dailyRecords.map((record) => record.dateTime)
 
   const pieSeries = new Array(3).fill(0)
-  records.map((record) => {
+  dailyRecords.map((record) => {
     pieSeries[record.mood - 1]++;
   })
 
-  const generateData = (count, yrange) => {
-    var i = 0;
-    var series = [];
-    while (i < count) {
-      var x = (i + 1).toString();
-      var y =
-        Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
-
-      series.push({
-        x: x,
-        y: y
-      });
-      i++;
-    }
-    return series;
-  }
-
-  const heatmapChartOptions: ApexOptions = {
-    // series: [{
-    //   name: 'Metric1',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric2',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric3',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric4',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric5',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric6',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric7',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric8',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // },
-    // {
-    //   name: 'Metric9',
-    //   data: generateData(18, {
-    //     min: 0,
-    //     max: 90
-    //   })
-    // }
-    // ],
-    chart: {
-      height: 350,
-      type: 'heatmap',
-    },
-    dataLabels: {
-      enabled: false
-    },
-    colors: ["#008FFB"],
-    title: {
-      text: 'HeatMap Chart (Single color)'
-    },
-    series: [{
-      name: 'Metric1',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric2',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric3',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric4',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric5',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric6',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric7',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric8',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    },
-    {
-      name: 'Metric8',
-      data: generateData(20, {
-        min: 0,
-        max: 90
-      })
-    }
-    ],
-  }
 
   const lineChartOptions: ApexOptions = {
     // Define your chart options here
@@ -303,12 +171,20 @@ export function RecordList() {
 
   return (
     <Container className='w-full'>
-      <div id="heatmap-chart">
-        <ReactApexChart
-          options={heatmapChartOptions}
-          series={heatmapChartOptions.series}
-          type="heatmap" height={CHART_HEIGHT} />
+      <div className='p-4'>
+        <Calendar now={new Date()} data={monthlyRecords} />
       </div>
+
+      {/* 默认隐藏线形图和饼图，当点击某天时再展示 */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div className="w-full border-t border-gray-300" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-white px-2 text-sm text-gray-500">Daily Records</span>
+        </div>
+      </div>
+
       <div className='flex w-full'>
         <div id="line-chart" className='w-6/12'>
           <ReactApexChart
@@ -320,7 +196,7 @@ export function RecordList() {
           />
         </div>
 
-        <div id="pie-chart" className='w-6/12'>
+        <div id="pie-chart" className='w-6/12 mt-4'>
           <ReactApexChart
             options={pieChartOptions}
             series={pieChartOptions.series}
