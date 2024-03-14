@@ -99,7 +99,6 @@ def process_frame(frame):
     action_name = 'no action'  # 默认情况下显示为“没有动作检测到”
     confidence = 0
     if len(sequence) == sequence_length:
-        #inputs = torch.tensor([sequence], dtype=torch.float32).to(device)
         sequence_array = np.array(sequence, dtype=np.float32)
         inputs = torch.tensor(sequence_array, dtype=torch.float32).unsqueeze(0).to(device)
     
@@ -116,21 +115,21 @@ def process_frame(frame):
                 # 根据识别出的动作调用相应的计数函数
                 if action_name == 'curl':
                     count_curls, dir_curls, _ = counting.counting_curls(frame, count_curls, dir_curls, time.time())
-                    cv2.putText(frame, f'Count: {int(count_curls)}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                    #print(f'curls: {int(count_curls)}')
                 elif action_name == 'squats':
                     count_squats, dir_squats, _ = counting.counting_squats(frame, count_squats, dir_squats, time.time())
-                    cv2.putText(frame, f'Count: {int(count_squats)}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                    #print(f'squats: {int(count_squats)}')
                 elif action_name == 'bridges':
                     count_bridges, dir_bridges, _ = counting.counting_bridges(frame, count_bridges, dir_bridges, time.time())
-                    cv2.putText(frame, f'Count: {int(count_squats)}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-
-
+                    #print(f'bridges: {int(count_bridges)}')
         # 在视频右侧显示动作名称和置信度（百分比形式）
         cv2.putText(frame, f'Action: {action_name}', (frame.shape[1] - 250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.putText(frame, f'Confidence: {confidence:.2f}%', (frame.shape[1] - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
 
+    # 在face.py的process_frame函数末尾修改返回值：
     return frame, {'action': action_name, 'count_curls': int(count_curls), 'count_squats': int(count_squats), 'count_bridges': int(count_bridges)}
+
 
 # cap = cv2.VideoCapture(0)
 
@@ -145,10 +144,13 @@ def process_frame(frame):
 #         break
 
 #     # 处理每一帧
-#     frame = process_frame(frame)
+#     frame,count = process_frame(frame)
+
 
 #     # 显示处理后的帧
 #     cv2.imshow('Frame', frame)
+#     print(f"动作: {count['action']}, curls次数: {count['count_curls']}, squats次数: {count['count_squats']}, bridges次数: {count['count_bridges']}")
+
 
 #     if cv2.waitKey(1) & 0xFF == ord('q'):
 #         break
