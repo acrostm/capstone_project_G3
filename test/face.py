@@ -130,29 +130,29 @@ def process_frame(frame):
         cv2.putText(frame, f'Confidence: {confidence:.2f}%', (frame.shape[1] - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
 
-    return frame
+    return frame, {'action': action_name, 'count_curls': int(count_curls), 'count_squats': int(count_squats), 'count_bridges': int(count_bridges)}
 
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 
-if not cap.isOpened():
-    print("无法打开摄像头")
-    exit()
+# if not cap.isOpened():
+#     print("无法打开摄像头")
+#     exit()
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        print("无法从摄像头读取帧")
-        break
+# while True:
+#     ret, frame = cap.read()
+#     if not ret:
+#         print("无法从摄像头读取帧")
+#         break
 
-    # 处理每一帧
-    frame = process_frame(frame)
+#     # 处理每一帧
+#     frame = process_frame(frame)
 
-    # 显示处理后的帧
-    cv2.imshow('Frame', frame)
+#     # 显示处理后的帧
+#     cv2.imshow('Frame', frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+#     if cv2.waitKey(1) & 0xFF == ord('q'):
+#         break
 
-# 释放摄像头并关闭所有窗口
-cap.release()
-cv2.destroyAllWindows()
+# # 释放摄像头并关闭所有窗口
+# cap.release()
+# cv2.destroyAllWindows()
