@@ -131,12 +131,12 @@ def handle_image(data, socketId):
                 print("Received an empty or invalid image.")
                 return
 
-            processed_img = face.process_frame(img)
+            processed_img, counts = face.process_frame(img)
 
             _, buffer = cv2.imencode('.jpg', processed_img)
             encoded_image = base64.b64encode(buffer).decode('utf-8')
 
-            socketio.emit('response', encoded_image, to=socketId)
+            socketio.emit('response', {'image': encoded_image, 'counts': counts}, to=socketId)
     except Exception as e:
         print(f"An error occurred: {e}")
 
