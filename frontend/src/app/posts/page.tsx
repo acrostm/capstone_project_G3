@@ -1,5 +1,5 @@
-// src/app/posts/page/tsx
-import React, { useState } from 'react';
+// src/app/posts/page.tsx
+import React from 'react';
 import { type Metadata } from 'next'
 import { Container } from '@/components/Container'
 import { PostList } from '@/components/PostsList'
@@ -22,7 +22,7 @@ const Page: React.FC = () => {
           Upload your article here
         </p>
       </header>
-    <Button href="/create_article" variant='solid' color='cyan'>Create Article</Button>
+    <Button href="/posts/create" variant='solid' color='cyan'>Create Article</Button>
       <div className="relative">
       <div className="absolute inset-0 flex items-center" aria-hidden="true">
         <div className="w-full border-t border-gray-300" />
