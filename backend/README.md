@@ -35,10 +35,10 @@ $ pnpm install
 
 ```bash
 # development mode
-$ yarn start:dev
+$ pnpm start:dev
 
 # production mode
-$ yarn start:prod
+$ pnpm start:prod
 ```
 ## 4. Access to the swagger document
 
@@ -49,13 +49,13 @@ NestJs Swagger Api Documents: http://www.localhost:3001/api/swagger
 
 ```bash
 # unit tests
-$ yarn test
+$ pnpm test
 
 # e2e tests
-$ yarn test:e2e
+$ pnpm test:e2e
 
 # test coverage
-$ yarn test:cov
+$ pnpm test:cov
 ```
 
 ### nest g
