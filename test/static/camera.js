@@ -48,8 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         sendFrame();
     });
-    socket.on('response', function(encoded_image) {
-        
+    socket.on('response', function(responseStr) {
+      console.dir(responseStr)
+      var response = JSON.parse(responseStr);
+      var encoded_image = response.image
+      var counts = response.counts
+      console.log(counts)
         // 将接收到的 Base64 字符串转换为图像 URL
         var imgSrc = 'data:image/jpeg;base64,' + encoded_image;
     
