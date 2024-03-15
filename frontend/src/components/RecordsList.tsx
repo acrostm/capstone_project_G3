@@ -1,7 +1,9 @@
 
+'use client'
 import { Container } from '@/components/Container'
+import dynamic from 'next/dynamic';
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 
 import Calendar from './Calendar';
@@ -174,6 +176,8 @@ export function RecordList() {
       <div className='p-4'>
         <Calendar now={new Date()} data={monthlyRecords} />
       </div>
+
+      {/* TODO: 加一个综合当月count和心情的图 */}
 
       {/* 默认隐藏线形图和饼图，当点击某天时再展示 */}
       <div className="relative">
