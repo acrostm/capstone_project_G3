@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  HttpException,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -43,7 +42,10 @@ export class AppController {
       limits: { fileSize: Math.pow(1024, 2) * 9 },
     }),
   )
-  async uploadFile(@UploadedFile() file: Express.Multer.File, filePrefix: string): Promise<any> {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    filePrefix: string,
+  ): Promise<any> {
     return this.appService.uploadFile(file, filePrefix);
   }
 }
