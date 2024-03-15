@@ -19,6 +19,9 @@ interface SocketResponseType {
   image: string;
   counts: {
     count_curls: number;
+    count_squats: number;
+    count_bridges: number;
+    action: string; // 'curl' | 'squats' | 'bridges' | 'no action'
   }
 }
 interface ServerToClientEvents {
@@ -35,6 +38,8 @@ const STATUS_COLOR = {
   2: '#f21136',  // ERROR
 };
 
+let MAX_CURLS_COUNT = 0, MAX_SQUATS_COUNT = 0, MAX_BRIDGES_COUNT = 0
+
 const Cam = ({ containerStyles }: CamProps) => {
   const [stream, setStream] = useState<MediaStream>();
   const [imgSrc, setImgSrc] = useState('');
@@ -42,7 +47,9 @@ const Cam = ({ containerStyles }: CamProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const [status, setStatus] = useState<0 | 1 | 2>(1);
   const [statusMsg, setStatusMsg] = useState('This is a warning');
-  const [count, setCount] = useState(0);
+  const [curlsCount, setCurlsCount] = useState(0);
+  const [squatsCount, setSquatsCount] = useState(0);
+  const [bridgesCount, setBridgesCount] = useState(0);
   const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
 
@@ -59,14 +66,27 @@ const Cam = ({ containerStyles }: CamProps) => {
     crtSocket.on("disconnect", () => {
       console.log("success disconnect");
     });
-    crtSocket.on('response', (data:SocketResponseType) => {
+    crtSocket.on('response', (data: SocketResponseType) => {
       // 将接收到的 Base64 字符串转换为图像 URL
       console.dir(data);
       const { image, counts } = data;
       const src = 'data:image/jpeg;base64,' + image;
       // 创建或更新图像元素以显示图像
       setImgSrc(src)
-      setCount(counts.count_curls)
+
+      // 总显示最新的 count
+      if (counts.count_curls > MAX_CURLS_COUNT) {
+        MAX_CURLS_COUNT = counts.count_curls
+        setCurlsCount(counts.count_curls)
+      }
+      if (counts.count_squats > MAX_SQUATS_COUNT) {
+        MAX_SQUATS_COUNT = counts.count_squats
+        setSquatsCount(counts.count_squats)
+      }
+      if (counts.count_bridges > MAX_BRIDGES_COUNT) {
+        MAX_SQUATS_COUNT = counts.count_bridges
+        setSquatsCount(counts.count_bridges)
+      }
     });
   }
 
@@ -165,7 +185,11 @@ const Cam = ({ containerStyles }: CamProps) => {
           <Button color={recordingStatus ? "cyan" : "gray"} onClick={stopVideo} disabled={!recordingStatus}>Stop</Button>
         </div>
         <div className="flex items-center justify-between  w-96">
-          <div>Count:{count}</div>
+          <div>
+            <span className="mr-4">Curls:{curlsCount}</span>
+            <span className="mr-4">Squats:{squatsCount}</span>
+            <span className="mr-4">Bridges:{bridgesCount}</span>
+          </div>
           <div style={{ color: STATUS_COLOR[status] }}>
             <ErrorIcon className="align-middle" />
             <span className="align-middle">{statusMsg}</span>
