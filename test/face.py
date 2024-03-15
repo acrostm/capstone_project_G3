@@ -33,6 +33,17 @@ import torch.nn as nn
 import time
 import counting
 
+def reset_mediapipe():
+    global pose, should_stop_processing
+    should_stop_processing = True  # 通知帧处理逻辑停止或快速完成
+    # 可以选择这里稍作等待，给正在处理的帧一些时间来快速完成
+    time.sleep(0.5)  # 等待示例，具体时间根据实际情况调整
+    pose.close()  # 安全地关闭 mediapipe 实例
+    pose = mp.solutions.pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+    should_stop_processing = False  # 重要：重置为 False 以恢复帧处理
+    print("Mediapipe has been reset and frame processing is resumed.")
+
+
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 class LSTM(nn.Module):
@@ -82,10 +93,17 @@ def extract_keypoints(results):
     pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
     return pose
 
+is_processing_frame = False
 
 def process_frame(frame):
-    global sequence, count_curls, dir_curls, count_squats, dir_squats, count_bridges, dir_bridges
+    global sequence, count_curls, dir_curls, count_squats, dir_squats, count_bridges, dir_bridges,is_processing_frame, should_stop_processing
+    if should_stop_processing:
+        print("AB")
+        return frame, {'action': 'no action', 'count_curls': count_curls, 'count_squats': count_squats, 'count_bridges': count_bridges}# 跳过处理或快速完成
     
+    
+
+    is_processing_frame = True
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = pose.process(frame_rgb)
 
@@ -125,8 +143,10 @@ def process_frame(frame):
         # 在视频右侧显示动作名称和置信度（百分比形式）
         cv2.putText(frame, f'Action: {action_name}', (frame.shape[1] - 250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.putText(frame, f'Confidence: {confidence:.2f}%', (frame.shape[1] - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+    else:
+        pass
 
-
+    is_processing_frame = False
     # 在face.py的process_frame函数末尾修改返回值：
     return frame, {'action': action_name, 'count_curls': int(count_curls), 'count_squats': int(count_squats), 'count_bridges': int(count_bridges)}
 
