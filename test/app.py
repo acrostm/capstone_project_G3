@@ -106,17 +106,27 @@ import cv2
 import base64
 import numpy as np
 import face
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# 这里添加 CORS 设置
+from flask_cors import CORS
+CORS(app)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
+
 @socketio.on('connect')
 def connected():
-    print("Client connected, SID:", request.sid)
+    logging.info(f"Client connected, SID: {request.sid}")
+    face.reset_mediapipe()  # 调用 face.py 中的重置函数
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -124,21 +134,25 @@ def handle_disconnect():
 
 @socketio.on('image')
 def handle_image(data, socketId):
+    logging.info(f"Received image data from {socketId}")
     try:
+            # blob = data['blob']
+            # timestamp = data['timestamp']
             nparr = np.frombuffer(data, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             if img is None or img.size == 0:
                 print("Received an empty or invalid image.")
                 return
-
-            processed_img, counts = face.process_frame(img)
-
-            _, buffer = cv2.imencode('.jpg', processed_img)
-            encoded_image = base64.b64encode(buffer).decode('utf-8')
-
-            socketio.emit('response', {'image': encoded_image, 'counts': counts}, to=socketId)
+            process_result = face.process_frame(img)
+            if process_result:
+                processed_img, counts = process_result
+                _, buffer = cv2.imencode('.jpg', processed_img)
+                encoded_image = base64.b64encode(buffer).decode('utf-8')
+                socketio.emit('response', {'image': encoded_image, 'counts': counts}, to=socketId)
+            else:
+                # 处理失败或未返回预期结果的逻辑
+                logging.error("Failed to process frame or received unexpected result.")
     except Exception as e:
-        print(f"An error occurred: {e}")
-
+        logging.error(f"An error occurred while processing image from {socketId}: {e}")
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5001)
