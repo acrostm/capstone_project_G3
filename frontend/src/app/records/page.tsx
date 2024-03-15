@@ -1,9 +1,6 @@
-'use client'
-import React, { useState } from 'react';
-import { type Metadata } from 'next'
+
 import { Container } from '@/components/Container'
 import { RecordList } from '@/components/RecordsList'
-import { Button } from '@/components/Button';
 
 
 const Page: React.FC = () => {

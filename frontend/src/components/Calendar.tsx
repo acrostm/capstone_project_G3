@@ -146,11 +146,11 @@ const Calendar = ({ now, data, rgb = [0, 109, 50] }: CalendarProps) => {
         <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
           <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
             {/* 根据 now 渲染当月日历 */}
-            {(new Array(weekDay).fill(0)).map(() => <div className="relative bg-gray-50 px-3 py-2 text-gray-500">
+            {(new Array(weekDay).fill(0)).map((crt, i) => <div key={`last-week-${i}`} className="relative bg-gray-50 px-3 py-2 text-gray-500">
             </div>)}
 
             {formatDates.map((crt, i) => {
-              return <div className="relative bg-white px-3 py-2 hover:bg-sky-100 hover:cursor-pointer"
+              return <div key={`crt-month-date-${crt.date}`} className={`relative bg-white px-3 py-2 hover:bg-sky-100 ${crt.count > 0 ? 'hover:cursor-pointer' : ''} `}
               // style={{
               //   backgroundColor: crt.color
               // }}
