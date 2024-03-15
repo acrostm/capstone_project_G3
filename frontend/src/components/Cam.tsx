@@ -15,9 +15,14 @@ const PROD_HOST = "https://www.3cap.xyz"  // TODO: PRODUCT HOST
 const HOST = process.env.NODE_ENV === 'development' ? DEV_HOST : PROD_HOST
 
 const WIDTH = 640, HEIGHT = 360;
-
+interface SocketResponseType {
+  image: string;
+  counts: {
+    count_curls: number;
+  }
+}
 interface ServerToClientEvents {
-  response: (json: string) => void;
+  response: (data: SocketResponseType) => void;
 }
 
 interface ClientToServerEvents {
@@ -54,14 +59,14 @@ const Cam = ({ containerStyles }: CamProps) => {
     crtSocket.on("disconnect", () => {
       console.log("success disconnect");
     });
-    crtSocket.on('response', (json) => {
+    crtSocket.on('response', (data:SocketResponseType) => {
       // 将接收到的 Base64 字符串转换为图像 URL
-      console.dir(json);
-      const { image, counts } = JSON.parse(json);
+      console.dir(data);
+      const { image, counts } = data;
       const src = 'data:image/jpeg;base64,' + image;
       // 创建或更新图像元素以显示图像
       setImgSrc(src)
-      setCount(counts)
+      setCount(counts.count_curls)
     });
   }
 
