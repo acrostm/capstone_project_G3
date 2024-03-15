@@ -18,27 +18,33 @@
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-## Installation
+
+# How to run the project
+## 1. Install package manager `pnpm`
 
 ```bash
-$ yarn
+$ corepack enable pnpm
+```
+## 2. Install the dependencies
+
+```bash
+$ pnpm install
 ```
 
-## Running the app
+## 3. Running the app
 
 ```bash
-# development
-$ yarn start
-
-# watch mode
+# development mode
 $ yarn start:dev
-
-### 使用webpack缓存可以把命令换成："start:dev": "nest build --webpack --webpackPath webpack-hmr.config.js --watch",
 
 # production mode
 $ yarn start:prod
 ```
+## 4. Access to the swagger document
 
+NestJs Swagger Api Documents: http://www.localhost:3001/api/swagger
+
+---
 ## Test
 
 ```bash
