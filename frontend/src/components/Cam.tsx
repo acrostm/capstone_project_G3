@@ -17,7 +17,7 @@ const HOST = process.env.NODE_ENV === 'development' ? DEV_HOST : PROD_HOST
 const WIDTH = 640, HEIGHT = 360;
 
 interface ServerToClientEvents {
-  response: (image: string) => void;
+  response: (json: string) => void;
 }
 
 interface ClientToServerEvents {
@@ -37,7 +37,7 @@ const Cam = ({ containerStyles }: CamProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const [status, setStatus] = useState<0 | 1 | 2>(1);
   const [statusMsg, setStatusMsg] = useState('This is a warning');
-  const [count, setCount] = useState(5);
+  const [count, setCount] = useState(0);
   const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
 
@@ -54,11 +54,14 @@ const Cam = ({ containerStyles }: CamProps) => {
     crtSocket.on("disconnect", () => {
       console.log("success disconnect");
     });
-    crtSocket.on('response', (encoded_image) => {
+    crtSocket.on('response', (json) => {
       // 将接收到的 Base64 字符串转换为图像 URL
-      const src = 'data:image/jpeg;base64,' + encoded_image;
+      console.dir(json);
+      const { image, counts } = JSON.parse(json);
+      const src = 'data:image/jpeg;base64,' + image;
       // 创建或更新图像元素以显示图像
       setImgSrc(src)
+      setCount(counts)
     });
   }
 
@@ -167,12 +170,12 @@ const Cam = ({ containerStyles }: CamProps) => {
       <div className="h-screen" style={{ width: WIDTH, margin: '0 auto' }}>
         <div className={`${containerStyles ? containerStyles : ''} relative`}>
           <video ref={videoRef} autoPlay playsInline muted width={WIDTH} height={HEIGHT}
-            // style={{
-            //   position: 'absolute',
-            //   top: 0,
-            //   left: 0,
-            //   zIndex: -1
-            // }}
+          // style={{
+          //   position: 'absolute',
+          //   top: 0,
+          //   left: 0,
+          //   zIndex: -1
+          // }}
           />
           {imgSrc && recordingStatus ? <Image src={imgSrc} alt="" width={WIDTH} height={HEIGHT} /> : null}
           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
