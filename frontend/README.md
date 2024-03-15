@@ -21,6 +21,7 @@ $ pnpm install
 ```bash
 # development mode
 $ pnpm dev
+
 # or
 $ npm run dev
 
