@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import fetch from 'node-fetch';
+import axios from 'axios';
 import * as FormData from 'form-data';
 
 @Injectable()
@@ -15,25 +15,25 @@ export class AppService {
     if (!file) {
       throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
     }
-    console.log('file: ', file);
+
     const formData = new FormData();
     formData.append('file', file.buffer, {
       filename: file.originalname,
-      contentType: file.mimetype, // 设置正确的 Content-Type
+      contentType: file.mimetype,
     });
 
-    const response = await fetch(
-      'https://r2api.3cap.xyz/' + filePrefix + '-' + file.originalname,
+    const response = await axios.put(
+      'https://r2api.3cap.xyz/' + filePrefix + file.originalname,
+      formData,
       {
-        method: 'PUT',
         headers: {
           'X-Custom-Auth-Key': 'www.3cap.xyz',
-          // 不需要设置 Content-Type，FormData 会自动设置正确的 Content-Type
+          ...formData.getHeaders(),
         },
-        body: formData,
       },
     );
+    console.log('response', response, '<-response');
     console.log(`File: ${file.originalname} uploaded to R2 Storage.`);
-    return response.ok ? { imageUrl: response.url } : 'File upload failed.';
+    return response.status === 200 ? { imageUrl: response.config.url } : 'File upload failed.';
   }
 }
