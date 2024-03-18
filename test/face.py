@@ -76,7 +76,7 @@ n_categories = 3
 n_layer = 3
 model = LSTM(n_joints, n_hidden, n_categories, n_layer)
 
-model.load_state_dict(torch.load('lstm.pkl', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('lstm_model.pkl', map_location=torch.device('cpu')))
 model.to(device)
 model.eval()
 
@@ -165,16 +165,66 @@ def process_frame(frame):
 
 #     # 处理每一帧
 #     frame,count = process_frame(frame)
+#     # 显示处理后的帧及动作次数
+#     action_text = f"Action: {count['action']}"
+#     curls_text = f"curls: {count['count_curls']}"
+#     squats_text = f"squats: {count['count_squats']}"
+#     bridges_text = f"bridges: {count['count_bridges']}"
+
+#     cv2.putText(frame, action_text, (10, 35), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+#     cv2.putText(frame, curls_text, (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+#     cv2.putText(frame, squats_text, (10, 115), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+#     cv2.putText(frame, bridges_text, (10, 155), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
 
 
 #     # 显示处理后的帧
 #     cv2.imshow('Frame', frame)
-#     print(f"动作: {count['action']}, curls次数: {count['count_curls']}, squats次数: {count['count_squats']}, bridges次数: {count['count_bridges']}")
+#     #print(f"动作: {count['action']}, curls次数: {count['count_curls']}, squats次数: {count['count_squats']}, bridges次数: {count['count_bridges']}")
 
 
 #     if cv2.waitKey(1) & 0xFF == ord('q'):
 #         break
 
 # # 释放摄像头并关闭所有窗口
+# cap.release()
+# cv2.destroyAllWindows()
+
+# 从视频文件读取而非摄像头
+# video_path = 'videos/squats.mp4' # 替换为你的视频文件路径
+# cap = cv2.VideoCapture(video_path)
+
+# if not cap.isOpened():
+#     print("无法打开视频文件")
+#     exit()
+
+# while True:
+#     ret, frame = cap.read()
+#     if not ret:
+#         print("无法从视频文件读取帧，可能是视频已结束")
+#         break
+
+#     # 处理每一帧
+#     frame, count = process_frame(frame)
+#     # 显示处理后的帧及动作次数
+#     # 省略了显示动作次数和名称的代码
+    
+#     action_text = f"Action: {count['action']}"
+#     curls_text = f"curls: {count['count_curls']}"
+#     squats_text = f"squats: {count['count_squats']}"
+#     bridges_text = f"bridges: {count['count_bridges']}"
+
+#     cv2.putText(frame, action_text, (10, 35), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+#     cv2.putText(frame, curls_text, (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+#     cv2.putText(frame, squats_text, (10, 115), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+#     cv2.putText(frame, bridges_text, (10, 155), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+
+
+#     cv2.imshow('Frame', frame)
+
+#     # 为了让视频播放看起来自然，调整等待时间
+#     if cv2.waitKey(25) & 0xFF == ord('q'): # 可以根据视频的帧率调整这里的等待时间
+#         break
+
+# # 释放视频文件并关闭所有窗口
 # cap.release()
 # cv2.destroyAllWindows()
