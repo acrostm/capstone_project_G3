@@ -2,11 +2,12 @@
 'use client'
 import { Container } from '@/components/Container'
 import dynamic from 'next/dynamic';
+import moment from 'moment'
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 import { ApexOptions } from "apexcharts";
 
-import Calendar from './Calendar';
+import RecordCalendar, { DataType } from './RecordCalendar';
 
 const MOOD = {
   1: '😞',
@@ -34,22 +35,37 @@ interface DailyRecord {
 export function RecordList() {
   // const records = await getAllRecords()
 
-  const monthlyRecords = [{
-    crtDate: 1, // 当月的第几日
-    count: 15
+  const monthlyRecords: DataType[] = [{
+    date: new Date('2024-03-08T12:00:00Z'),
+    curls_count: 50,
+    squats_count: 20,
+    bridges_count: 10
   }, {
-    crtDate: 3,
-    count: 9
+    date: new Date('2024-03-10T12:00:00Z'),
+    curls_count: 15,
+    squats_count: 10,
+    bridges_count: 10
   }, {
-    crtDate: 6,
-    count: 150
+    date: new Date('2024-03-14T12:00:00Z'),
+
+    curls_count: 10,
+    squats_count: 20,
+    bridges_count: 10
   }, {
-    crtDate: 7,
-    count: 50
+    date: new Date('2024-03-16T12:00:00Z'),
+
+    curls_count: 20,
+    squats_count: 10,
+    bridges_count: 30
   }, {
-    crtDate: 17,
-    count: 100
-  },]
+    date: new Date('2024-03-19T12:00:00Z'),
+
+    curls_count: 10,
+    squats_count: 10,
+    bridges_count: 10
+  },
+  ]
+
 
 
   // 每日的records
@@ -87,6 +103,51 @@ export function RecordList() {
     pieSeries[record.mood - 1]++;
   })
 
+  const columnChartOptions: ApexOptions = {
+    series: [{
+      name: 'Curls',
+      data: monthlyRecords.map((item) => item.curls_count)
+    }, {
+      name: 'Squats',
+      data: monthlyRecords.map((item) => item.squats_count)
+    }, {
+      name: 'Bridges',
+      data: monthlyRecords.map((item) => item.bridges_count)
+    }],
+    chart: {
+      type: 'bar',
+      height: 350,
+      toolbar: {
+        show: false
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        // endingShape: 'rounded'
+      },
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['transparent']
+    },
+    xaxis: {
+      categories: monthlyRecords.map((item) => moment(item.date).format('MM-DD-YYYY')),
+    },
+    yaxis: {
+      title: {
+        text: 'Count'
+      }
+    },
+    fill: {
+      opacity: 1
+    },
+  }
 
   const lineChartOptions: ApexOptions = {
     // Define your chart options here
@@ -171,23 +232,37 @@ export function RecordList() {
   };
 
 
+
   return (
-    <Container className='w-full'>
+    <Container className='w-full' >
       <div className='p-4'>
-        <Calendar now={new Date()} data={monthlyRecords} />
+        <RecordCalendar crtDate={new Date()} data={monthlyRecords} />
       </div>
 
-      {/* TODO: 加一个综合当月count和心情的图 */}
+
+
+
+      {/* 综合当月count的图 */}
+      <div id="column-chart" className='w-full'>
+        <ReactApexChart
+          options={columnChartOptions}
+          series={columnChartOptions.series}
+          type="bar"
+          height={CHART_HEIGHT}
+          width={'100%'}
+        />
+      </div>
+
 
       {/* 默认隐藏线形图和饼图，当点击某天时再展示 */}
-      <div className="relative">
+      <div className="relative" >
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center">
           <span className="bg-white px-2 text-sm text-gray-500">Daily Records</span>
         </div>
-      </div>
+      </div >
 
       <div className='flex w-full'>
         <div id="line-chart" className='w-6/12'>
@@ -212,6 +287,6 @@ export function RecordList() {
       </div>
 
 
-    </Container>
+    </Container >
   )
 }
