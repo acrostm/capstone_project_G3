@@ -3,6 +3,18 @@ import { Container } from '@/components/Container'
 import { RecordList } from '@/components/RecordsList'
 
 
+/**
+ * Record Entity:
+ * Record: {
+ *   date: '2024-03-08',
+ *   time: '18:00',
+ *   curls_count: 10,
+ *   squats_count: 10,
+ *   bridges_count: 10
+ * }
+ */
+
+
 const Page: React.FC = () => {
   return (
     <Container>
