@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { TagModule } from './tag/tag.module';
 import { CategoryModule } from './category/category.module';
+import { PycvModule } from './pycv/pycv.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CategoryModule } from './category/category.module';
       }),
     }),
     MulterModule,
+    PycvModule,
     PostsModule,
     UserModule,
     AuthModule,

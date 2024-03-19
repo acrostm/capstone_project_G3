@@ -10,13 +10,14 @@ import {
   Req,
   Patch,
   UploadedFile,
-  HttpException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
-  ApiBearerAuth, ApiBody, ApiConsumes,
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -88,9 +89,12 @@ export class UserController {
       limits: { fileSize: Math.pow(1024, 2) * 9 },
     }),
   )
-  uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File): Promise<any> {
+  uploadAvatar(
+    @Req() req,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<any> {
     const id = req.user.id;
-    console.log('file', file, id,'<-file');
+    console.log('file', file, id, '<-file');
     return this.userService.uploadAvatar(id, file);
   }
 }

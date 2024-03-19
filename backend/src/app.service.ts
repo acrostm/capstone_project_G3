@@ -34,6 +34,8 @@ export class AppService {
     );
     console.log('response', response, '<-response');
     console.log(`File: ${file.originalname} uploaded to R2 Storage.`);
-    return response.status === 200 ? { imageUrl: response.config.url } : 'File upload failed.';
+    return response.status === 200
+      ? { imageUrl: response.config.url }
+      : 'File upload failed.';
   }
 }
