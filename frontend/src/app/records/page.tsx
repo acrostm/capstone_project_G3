@@ -1,6 +1,6 @@
 
 import { Container } from '@/components/Container'
-import { RecordList } from '@/components/RecordsList'
+import RecordList from '@/components/RecordsList'
 
 
 /**

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import moment from 'moment';
+
 import { Color } from '../../types';
 import bicepIcon from '@/images/icons/bicep.png'
 import squatsIcon from '@/images/icons/squats.png'
 import bridgingIcon from '@/images/icons/bridging.png'
 import { Icon } from './Icon';
 import { StaticImageData } from 'next/image';
-
 
 interface FormatData {
   date: number;
@@ -34,22 +35,27 @@ type CountType = keyof Omit<DataType, 'date'>
 type FormatCountType = keyof Omit<FormatData, 'date'>
 
 
-interface RecordCalendarProps1 {
+interface RecordCalendarProps {
   crtDate: Date;
   data: DataType[];
   minColors?: [Color, Color, Color]
   maxColors?: [Color, Color, Color]
+  handleClickPreviousMonth: () => void;
+  handleClickNextMonth: () => void;
+  handleClickToday: () => void;
 }
 
-interface RecordCalendarProps {
-  now: Date;
-  data: DataType[];
-  rgb?: [number, number, number]
-}
 
-// ['#003153','#006600', '#FFEF00']
-// ['#87CEFA', '#90EE90', '#FFFACD'] 
-const RecordCalendar = ({ crtDate, data, minColors = ['#87CEFA', '#90EE90', '#FFFACD'], maxColors = ['#003153', '#006600', '#FFEF00'] }: RecordCalendarProps1) => {
+const RecordCalendar = ({
+  crtDate,
+  data,
+  minColors = ['#87CEFA', '#90EE90', '#FFFACD'],
+  maxColors = ['#003153', '#006600', '#FFEF00'],
+  handleClickNextMonth,
+  handleClickPreviousMonth,
+  handleClickToday
+}: RecordCalendarProps) => {
+
   const monthStr = crtDate.toLocaleString('default', { month: 'long' })
   const month = crtDate.getMonth() + 1
   const year = crtDate.getFullYear()
@@ -64,6 +70,18 @@ const RecordCalendar = ({ crtDate, data, minColors = ['#87CEFA', '#90EE90', '#FF
     return d.getDate();
   }
   const days = getDays(year, month);
+
+  const weekOfMonth = (date: Date) => {
+    const firstDayOfMonth = moment(date).clone().startOf('month');
+    const firstDayOfWeek = firstDayOfMonth.clone().startOf('week');
+
+    const offset = firstDayOfMonth.diff(firstDayOfWeek, 'days');
+
+    return Math.ceil((moment(date).date() + offset) / 7);
+  }
+
+  const weeks = weekOfMonth(crtDate)
+
 
   const getMinAndMax = (list: DataType[], type: CountType): [number, number] => {
     let min = Infinity, max = -Infinity
@@ -144,7 +162,6 @@ const RecordCalendar = ({ crtDate, data, minColors = ['#87CEFA', '#90EE90', '#FF
         }
       }
       const crtIndex = datesHadCount.indexOf(day)
-      console.dir(datesHadCount)
       if (crtIndex != -1) {
         const curls_count = data[crtIndex].curls_count
         const squats_count = data[crtIndex].squats_count
@@ -182,6 +199,8 @@ const RecordCalendar = ({ crtDate, data, minColors = ['#87CEFA', '#90EE90', '#FF
     key: FormatCountType
   }[] = [{ icon: bicepIcon, key: 'curls' }, { icon: squatsIcon, key: 'squats' }, { icon: bridgingIcon, key: 'bridges' }]
 
+  
+
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
       <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
@@ -190,18 +209,22 @@ const RecordCalendar = ({ crtDate, data, minColors = ['#87CEFA', '#90EE90', '#FF
         </h1>
         <div className="flex items-center">
           <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
-            <button type="button" className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50">
-              <span className="sr-only">Previous month</span>
+            <button type="button"
+              onClick={handleClickPreviousMonth}
+              className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50">
+              <span className="sr-only" >Previous month</span>
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
               </svg>
             </button>
-            <button type="button" className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block">Today</button>
+            <button onClick={handleClickToday} type="button" className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block">Today</button>
             <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden"></span>
-            <button type="button" className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50">
-              <span className="sr-only">Next month</span>
+            <button
+              onClick={handleClickNextMonth}
+              type="button" className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50">
+              <span className="sr-only" >Next month</span>
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
               </svg>
             </button>
           </div>
@@ -240,7 +263,7 @@ const RecordCalendar = ({ crtDate, data, minColors = ['#87CEFA', '#90EE90', '#FF
 
         </div>
         <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
-          <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
+          <div className={`hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-${weeks} lg:gap-px`}>
             {/* 根据 crtDate 渲染当月日历 */}
             {(new Array(weekDay).fill(0)).map((crt, i) => <div key={`last-week-${i}`} className="relative bg-gray-50 px-3 py-2 text-gray-500">
             </div>)}
@@ -264,7 +287,7 @@ const RecordCalendar = ({ crtDate, data, minColors = ['#87CEFA', '#90EE90', '#FF
 
           </div>
 
-          <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
+          <div className={`isolate grid w-full grid-cols-7 grid-rows-${weeks} gap-px lg:hidden`}>
             {/* 根据 now 渲染当月日历 */}
             {(new Array(weekDay).fill(0)).map((crt, i) =>
               <button key={`last-week-${i}`} type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
