@@ -88,7 +88,7 @@ export class UserService {
 
   async uploadAvatar(id: string, file: Express.Multer.File): Promise<any> {
     const filePrefix = 'Avatar-';
-    console.log('file', file, filePrefix, '<-file, filePrefix')
+    console.log('file', file, filePrefix, '<-file, filePrefix');
     const user: User = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);

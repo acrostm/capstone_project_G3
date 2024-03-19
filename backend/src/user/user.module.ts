@@ -8,10 +8,7 @@ import { AppModule } from '../app.module';
 import { AppService } from '../app.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    forwardRef(() => AppModule),
-  ],
+  imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AppModule)],
   controllers: [UserController],
   providers: [UserService, AppService],
   exports: [UserService],

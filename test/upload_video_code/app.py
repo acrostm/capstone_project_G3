@@ -53,37 +53,90 @@
 
 # if __name__ == '__main__':
 #     app.run(port=5001)  # 启动 Flask 服务器，端口设为 5001
+# import cv2
+# import face
+
+# # 读取本地视频文件
+# video_path = 'https://r2.3cap.xyz/2820_1710813261.mp4'
+# cap = cv2.VideoCapture(video_path)
+# if not cap.isOpened():
+#     print('无法打开视频文件')
+#     exit()
+
+# # 创建 VideoWriter 对象，用于保存处理后的视频
+# fps = cap.get(cv2.CAP_PROP_FPS)
+# width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+# height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+# fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+# out = cv2.VideoWriter('processed_video.mp4', fourcc, fps, (width, height))
+
+# # 逐帧处理视频
+# while cap.isOpened():
+#     ret, frame = cap.read()
+#     if not ret:
+#         break
+
+#     # 调用 process_frame() 函数处理视频帧
+#     processed_frame, _ = face.process_frame(frame)
+    
+#     # 将处理后的帧写入到 VideoWriter 对象中
+#     out.write(processed_frame)
+
+# # 释放视频对象
+# cap.release()
+# out.release()
+
+# print('视频处理完成，并保存为 processed_video.mp4 文件')
+
+
 import cv2
 import face
+import argparse
+import io
 
-# 读取本地视频文件
-video_path = 'video.mp4'
-cap = cv2.VideoCapture(video_path)
-if not cap.isOpened():
-    print('无法打开视频文件')
-    exit()
+def process_video(video_url):
+    # Read video from the provided URL
+    cap = cv2.VideoCapture(video_url)
+    if not cap.isOpened():
+        print('Unable to open video file')
+        return None
 
-# 创建 VideoWriter 对象，用于保存处理后的视频
-fps = cap.get(cv2.CAP_PROP_FPS)
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('processed_video.mp4', fourcc, fps, (width, height))
+    # Get video properties
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-# 逐帧处理视频
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
+    # Prepare VideoWriter object
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = io.BytesIO()
 
-    # 调用 process_frame() 函数处理视频帧
-    processed_frame, _ = face.process_frame(frame)
-    
-    # 将处理后的帧写入到 VideoWriter 对象中
-    out.write(processed_frame)
+    # Process each frame
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-# 释放视频对象
-cap.release()
-out.release()
+        # Process frame
+        processed_frame, _ = face.process_frame(frame)
+        
+        # Write processed frame to VideoWriter object
+        out.write(processed_frame)
 
-print('视频处理完成，并保存为 processed_video.mp4 文件')
+    # Release resources
+    cap.release()
+
+    return out.getvalue()
+
+if __name__ == "__main__":
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Process video with face detection')
+    parser.add_argument('video_url', type=str, help='URL of the video file')
+    args = parser.parse_args()
+
+    # Process video and return processed video
+    processed_video = process_video(args.video_url)
+
+    if processed_video:
+        print("Video processing completed")
+    else:
+        print("Video processing failed")
