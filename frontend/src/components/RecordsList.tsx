@@ -1,13 +1,13 @@
 
 'use client'
-import { Container } from '@/components/Container'
 import dynamic from 'next/dynamic';
 import moment from 'moment'
-const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
-
 import { ApexOptions } from "apexcharts";
+import { useState } from 'react';
 
 import RecordCalendar, { DataType } from './RecordCalendar';
+import { Container } from '@/components/Container'
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const MOOD = {
   1: '😞',
@@ -32,7 +32,9 @@ interface DailyRecord {
 }
 
 
-export function RecordList() {
+const RecordList = () => {
+  const [crtDate, setCrtDate] = useState<Date>(new Date())
+
   // const records = await getAllRecords()
 
   const monthlyRecords: DataType[] = [{
@@ -233,13 +235,43 @@ export function RecordList() {
 
 
 
+  const onHandleClickPreviousMonth = (): void => {
+    const previousMonth = moment(crtDate).subtract(1, 'months').endOf('month').toDate()
+    if (checkIsSameMonth(previousMonth, new Date())) {
+      setCrtDate(new Date())
+    } else {
+      setCrtDate(previousMonth)
+    }
+  }
+
+  const onHandleClickNextMonth = (): void => {
+    const nextMonth = moment(crtDate).add(1, 'months').endOf('month').toDate()
+    if (checkIsSameMonth(nextMonth, new Date())) {
+      setCrtDate(new Date())
+    } else {
+      setCrtDate(nextMonth)
+    }
+  }
+
+  const onHandleClickToday = (): void => {
+    setCrtDate(new Date())
+  }
+
+  const checkIsSameMonth = (d1: Date, d2: Date): boolean => {
+    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth()
+  }
+
   return (
     <Container className='w-full' >
       <div className='p-4'>
-        <RecordCalendar crtDate={new Date()} data={monthlyRecords} />
+        <RecordCalendar
+          crtDate={crtDate}
+          data={monthlyRecords}
+          handleClickPreviousMonth={onHandleClickPreviousMonth}
+          handleClickNextMonth={onHandleClickNextMonth}
+          handleClickToday={onHandleClickToday}
+        />
       </div>
-
-
 
 
       {/* 综合当月count的图 */}
@@ -290,3 +322,6 @@ export function RecordList() {
     </Container >
   )
 }
+
+export default RecordList;
+
