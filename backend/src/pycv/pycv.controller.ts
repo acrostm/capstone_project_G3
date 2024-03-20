@@ -1,14 +1,14 @@
 import {
   Controller,
-  Post,
   Get,
-  UseInterceptors,
-  UseGuards,
-  UploadedFile,
+  Post,
   Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PycvService } from './pycv.service';
-import { ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -22,22 +22,34 @@ export class PycvController {
   }
 
   @Post('process')
-  @ApiOperation({ summary: '上传用户头像' })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: '上传处理视频' })
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: Math.pow(1024, 2) * 30 },
     }),
   )
+  @ApiBody({
+    description: 'File to upload',
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiConsumes('multipart/form-data')
   async processImage(
     @Req() req,
     @UploadedFile() video: Express.Multer.File,
   ): Promise<any> {
     try {
-      const processedVideo = await this.pycvService.processImage(video);
-      return processedVideo;
+      return await this.pycvService.processImage(video);
     } catch (error) {
       throw new Error(`Failed to process image: ${error.message}`);
     }
