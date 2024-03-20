@@ -47,7 +47,7 @@ def reset_mediapipe():
     print("Mediapipe has been reset and frame processing is resumed.")
 
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+device = torch.device('cpu')
 
 class LSTM(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, layer_num):
@@ -101,7 +101,6 @@ is_processing_frame = False
 def process_frame(frame):
     global sequence, count_curls, dir_curls, count_squats, dir_squats, count_bridges, dir_bridges,is_processing_frame, should_stop_processing
     if should_stop_processing:
-        print("AB")
         return frame, {'action': 'no action', 'count_curls': count_curls, 'count_squats': count_squats, 'count_bridges': count_bridges}# 跳过处理或快速完成
     
     
@@ -125,24 +124,25 @@ def process_frame(frame):
     
 
         with torch.no_grad():
-            outputs = model(inputs)
-            probabilities = torch.softmax(outputs, dim=1)
-            action_idx = torch.argmax(probabilities, dim=1).item()
-            confidence = probabilities[0][action_idx].item() * 100
+            # outputs = model(inputs)
+            outputs = inputs
+            # probabilities = torch.softmax(outputs, dim=1)
+            # action_idx = torch.argmax(probabilities, dim=1).item()
+            # confidence = probabilities[0][action_idx].item() * 100
 
-            # 当置信度高于90%时，更新动作名称
-            if confidence >= 90:
-                action_name = actions[action_idx]
-                # 根据识别出的动作调用相应的计数函数
-                if action_name == 'curl':
-                    count_curls, dir_curls, _ = counting.counting_curls(frame, count_curls, dir_curls, time.time())
-                    #print(f'curls: {int(count_curls)}')
-                elif action_name == 'squats':
-                    count_squats, dir_squats, _ = counting.counting_squats(frame, count_squats, dir_squats, time.time())
-                    #print(f'squats: {int(count_squats)}')
-                elif action_name == 'bridges':
-                    count_bridges, dir_bridges, _ = counting.counting_bridges(frame, count_bridges, dir_bridges, time.time())
-                    #print(f'bridges: {int(count_bridges)}')
+            # # 当置信度高于90%时，更新动作名称
+            # if confidence >= 90:
+            #     action_name = actions[action_idx]
+            #     # 根据识别出的动作调用相应的计数函数
+            #     if action_name == 'curl':
+            #         count_curls, dir_curls, _ = counting.counting_curls(frame, count_curls, dir_curls, time.time())
+            #         #print(f'curls: {int(count_curls)}')
+            #     elif action_name == 'squats':
+            #         count_squats, dir_squats, _ = counting.counting_squats(frame, count_squats, dir_squats, time.time())
+            #         #print(f'squats: {int(count_squats)}')
+            #     elif action_name == 'bridges':
+            #         count_bridges, dir_bridges, _ = counting.counting_bridges(frame, count_bridges, dir_bridges, time.time())
+            #         #print(f'bridges: {int(count_bridges)}')
         # 在视频右侧显示动作名称和置信度（百分比形式）
         cv2.putText(frame, f'Action: {action_name}', (frame.shape[1] - 250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.putText(frame, f'Confidence: {confidence:.2f}%', (frame.shape[1] - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
