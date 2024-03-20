@@ -57,21 +57,28 @@ export class PycvService {
 
     const pythonProcess = spawn('python3', [pythonScript, videoPath]);
 
-    let processedVideo: Buffer | null = null;
+    let processedBuffer: Buffer | null = null;
 
     pythonProcess.stdout.on('data', (data) => {
       // Receive processed video data from Python script
-      processedVideo = data;
+      processedBuffer = data;
     });
 
+    console.log('Processing buffer ->', processedBuffer);
     pythonProcess.stderr.on('data', (data) => {
       console.error(`Error: ${data}`);
     });
 
     pythonProcess.on('close', async (code) => {
-      if (code === 0 && processedVideo) {
+      if (code === 0 && processedBuffer) {
         console.log('Video processing completed');
-        const response = await this.uploadFile(processedVideo, 'ProcessedV-');
+        const processedVideo: Express.Multer.File = {
+          ...video,
+          buffer: processedBuffer,
+        };
+        console.log('Processing video ->', processedVideo);
+
+        const response = await this.uploadFile(processedVideo, 'ProcVideo-');
         return { processedVideoUrl: response.Url };
       } else {
         console.error(`Video processing failed with code ${code}`);
