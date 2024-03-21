@@ -4,7 +4,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
 import { Readable } from 'stream';
-import * as fs from 'fs';
 
 @Injectable()
 export class PycvService {
@@ -13,7 +12,7 @@ export class PycvService {
     filePrefix: string = 'Video-',
   ): Promise<any> {
     if (!file) {
-      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+      return 'No file uploaded';
     }
 
     const formData = new FormData();
@@ -35,7 +34,7 @@ export class PycvService {
 
     console.log(`File: ${file.originalname} uploaded to R2 Storage.`);
     return response.status === 200
-      ? { url: response.config.url }
+      ? { Url: response.config.url }
       : 'File upload failed.';
   }
 
@@ -47,63 +46,51 @@ export class PycvService {
       '..',
       'test',
       'upload_video_code',
-      'app.py',
+      'face.py',
     );
 
     if (!video) {
       throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
     }
 
-    const videoUrl = await this.uploadFile(video, 'Video-');
+    const response = await this.uploadFile(video);
+    const videoPath = response.Url;
 
-    // 调用Python脚本
-    const pythonProcess = spawn('python', [pythonScript, videoUrl]);
+    const pythonProcess = spawn('python3', [pythonScript, videoPath]);
 
-    // 监听Python脚本的标准输出和错误输出
+    let processedBuffer: Buffer | null = null;
+
     pythonProcess.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+      // Receive processed video data from Python script
+      processedBuffer = Buffer.from(data, 'base64');
     });
 
+    console.log('Processing buffer ->', processedBuffer);
     pythonProcess.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
+      console.error(`Error: ${data}`);
     });
 
-    // 等待Python脚本执行完成
     pythonProcess.on('close', async (code) => {
-      console.log(`Python script exited with code ${code}`);
+      if (code === 0 && processedBuffer) {
+        console.log('Video processing completed');
+        const processedVideo: Express.Multer.File = {
+          fieldname: 'processedVideo',
+          originalname: 'processedVideo.mp4',
+          encoding: '7bit',
+          mimetype: 'video/mp4',
+          buffer: processedBuffer,
+          size: processedBuffer.length,
+          stream: Readable.from(processedBuffer), // Add buffer data to the stream
+          destination: '',
+          filename: 'processedVideo.mp4',
+          path: '',
+        };
+        console.log('Processing video ->', processedVideo);
 
-      if (code === 0) {
-        // 上传处理后的视频文件
-        const uploadedFileUrl = await this.uploadFile(
-          // 使用一个占位的本地文件路径，这里你可以自定义一个
-          {
-            path: '/path/to/processed_video.mp4',
-            originalname: 'processed_video.mp4',
-            fieldname: '',
-            encoding: '',
-            mimetype: '',
-            size: 0,
-            stream: new Readable(),
-            destination: '',
-            filename: '',
-            buffer: undefined,
-          },
-          'ProcessedVideo-',
-        );
-
-        // 删除处理后的视频文件
-        fs.unlinkSync(
-          '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
-        );
-
-        console.log('Processed video uploaded and deleted.');
-
-        return uploadedFileUrl;
+        const response = await this.uploadFile(processedVideo, 'ProcVideo-');
+        return { processedVideoUrl: response.Url };
       } else {
-        throw new HttpException(
-          'Video processing failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        console.error(`Video processing failed with code ${code}`);
       }
     });
   }
