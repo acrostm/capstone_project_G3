@@ -71,6 +71,34 @@ export class PycvService {
     });
 
     pythonProcess.on('close', async (code) => {
+
+      console.log(`Python script exited with code ${code}`);
+
+      if (code === 0) {
+        // 上传处理后的视频文件
+        const uploadedFileUrl = await this.uploadFile(
+          // 使用一个占位的本地文件路径，这里你可以自定义一个
+          {
+            path: '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
+            originalname: 'processed_video.mp4',
+            fieldname: '',
+            encoding: '',
+            mimetype: '',
+            size: 0,
+            stream: new Readable(),
+            destination: '',
+            filename: '',
+            buffer: undefined,
+          },
+          'ProcessedVideo-',
+        );
+
+        // 删除处理后的视频文件
+        fs.unlinkSync(
+          '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
+        );
+
+        console.log('Processed video uploaded and deleted.');
       if (code === 0 && processedBuffer) {
         console.log('Video processing completed');
         const processedVideo: Express.Multer.File = {
