@@ -3,6 +3,7 @@ import * as path from 'path';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
+import { Readable } from 'stream';
 
 @Injectable()
 export class PycvService {
@@ -61,7 +62,7 @@ export class PycvService {
 
     pythonProcess.stdout.on('data', (data) => {
       // Receive processed video data from Python script
-      processedBuffer = data;
+      processedBuffer = Buffer.from(data, 'base64');
     });
 
     console.log('Processing buffer ->', processedBuffer);
@@ -73,8 +74,16 @@ export class PycvService {
       if (code === 0 && processedBuffer) {
         console.log('Video processing completed');
         const processedVideo: Express.Multer.File = {
-          ...video,
+          fieldname: 'processedVideo',
+          originalname: 'processedVideo.mp4',
+          encoding: '7bit',
+          mimetype: 'video/mp4',
           buffer: processedBuffer,
+          size: processedBuffer.length,
+          stream: Readable.from(processedBuffer), // Add buffer data to the stream
+          destination: '',
+          filename: 'processedVideo.mp4',
+          path: '',
         };
         console.log('Processing video ->', processedVideo);
 
