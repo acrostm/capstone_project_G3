@@ -4,6 +4,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
 import { Readable } from 'stream';
+import * as fs from 'fs';
 
 @Injectable()
 export class PycvService {
@@ -71,54 +72,41 @@ export class PycvService {
     });
 
     pythonProcess.on('close', async (code) => {
-
       console.log(`Python script exited with code ${code}`);
 
       if (code === 0) {
         // 上传处理后的视频文件
-        const uploadedFileUrl = await this.uploadFile(
-          // 使用一个占位的本地文件路径，这里你可以自定义一个
-          {
-            path: '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
-            originalname: 'processed_video.mp4',
-            fieldname: '',
-            encoding: '',
-            mimetype: '',
-            size: 0,
-            stream: new Readable(),
-            destination: '',
-            filename: '',
-            buffer: undefined,
-          },
-          'ProcessedVideo-',
-        );
-
-        // 删除处理后的视频文件
-        fs.unlinkSync(
-          '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
-        );
 
         console.log('Processed video uploaded and deleted.');
-      if (code === 0 && processedBuffer) {
-        console.log('Video processing completed');
-        const processedVideo: Express.Multer.File = {
-          fieldname: 'processedVideo',
-          originalname: 'processedVideo.mp4',
-          encoding: '7bit',
-          mimetype: 'video/mp4',
-          buffer: processedBuffer,
-          size: processedBuffer.length,
-          stream: Readable.from(processedBuffer), // Add buffer data to the stream
-          destination: '',
-          filename: 'processedVideo.mp4',
-          path: '',
-        };
-        console.log('Processing video ->', processedVideo);
+        if (code === 0 && processedBuffer) {
+          console.log('Video processing completed');
+          const uploadedFileUrl = await this.uploadFile(
+            // 使用一个占位的本地文件路径，这里你可以自定义一个
+            {
+              path: '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
+              originalname: 'processed_video.mp4',
+              fieldname: '',
+              encoding: '',
+              mimetype: '',
+              size: 0,
+              stream: new Readable(),
+              destination: '',
+              filename: '',
+              buffer: undefined,
+            },
+            'ProcessedVideo-',
+          );
 
-        const response = await this.uploadFile(processedVideo, 'ProcVideo-');
-        return { processedVideoUrl: response.Url };
-      } else {
-        console.error(`Video processing failed with code ${code}`);
+          // 删除处理后的视频文件
+          fs.unlinkSync(
+            '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
+          );
+
+          const response = await this.uploadFile(uploadedFileUrl, 'ProcVideo-');
+          return { processedVideoUrl: response.Url };
+        } else {
+          console.error(`Video processing failed with code ${code}`);
+        }
       }
     });
   }
