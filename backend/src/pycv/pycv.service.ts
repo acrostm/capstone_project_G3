@@ -77,7 +77,7 @@ export class PycvService {
         const uploadedFileUrl = await this.uploadFile(
           // 使用一个占位的本地文件路径，这里你可以自定义一个
           {
-            path: '/path/to/processed_video.mp4',
+            path: '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
             originalname: 'processed_video.mp4',
             fieldname: '',
             encoding: '',
