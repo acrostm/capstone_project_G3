@@ -26,12 +26,12 @@ interface FormatData {
 
 
 export interface DataType {
-  date: Date;
+  create_time: Date;
   curls_count: number;
   squats_count: number;
   bridges_count: number;
 }
-type CountType = keyof Omit<DataType, 'date'>
+type CountType = keyof Omit<DataType, 'create_time'>
 type FormatCountType = keyof Omit<FormatData, 'date'>
 
 
@@ -143,7 +143,7 @@ const RecordCalendar = ({
     const [squatsMin, squatsMax] = getMinAndMax(data, 'squats_count')
     const [bridgesMin, bridgesMax] = getMinAndMax(data, 'bridges_count')
 
-    const datesHadCount = data.map((item) => item.date.getDate())
+    const datesHadCount = data.map((item) => item.create_time.getDate())
     let formatDates = new Array(days);
     for (let day = 1; day <= days; day++) {
       const item = {
@@ -190,7 +190,7 @@ const RecordCalendar = ({
 
 
   const formatDates = getFormatDates();
-  console.dir(formatDates)
+  // console.dir(formatDates)
 
   const today = new Date();
 

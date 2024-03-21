@@ -10,6 +10,7 @@ import { PostsModule } from './posts/posts.module';
 import { TagModule } from './tag/tag.module';
 import { CategoryModule } from './category/category.module';
 import { PycvModule } from './pycv/pycv.module';
+import { RecordsModule } from './records/records.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PycvModule } from './pycv/pycv.module';
         retryDelay: 500, // 重试连接数据库间隔
         retryAttempts: 10, // 充实次数
         autoLoadEntities: true,
+        timezone: '+00:00' //将数据库连接的时区设置为 UTC+0
       }),
     }),
     MulterModule,
@@ -41,8 +43,9 @@ import { PycvModule } from './pycv/pycv.module';
     AuthModule,
     TagModule,
     CategoryModule,
+    RecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

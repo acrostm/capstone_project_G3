@@ -13,6 +13,7 @@ import * as bcrypt from 'bcryptjs';
 import { ApiProperty } from '@nestjs/swagger';
 import { PostsEntity } from '../../posts/entities/post.entity';
 import { ConfigService } from '@nestjs/config';
+import { Record } from 'src/records/entities/record.entity';
 
 @Entity('user')
 export class User {
@@ -39,6 +40,9 @@ export class User {
   @OneToMany(() => PostsEntity, (post) => post.author)
   posts: PostsEntity[];
 
+  @OneToMany(() => Record, (record) => record.user)
+  records: Record[];
+
   @CreateDateColumn({
     name: 'create_time',
     type: 'timestamp',
@@ -55,9 +59,12 @@ export class User {
   @BeforeInsert()
   async encryptPwd(configService: ConfigService) {
     if (!this.password) return;
-    this.password = bcrypt.hashSync(
+    this.password = await bcrypt.hashSync(
       this.password,
-      configService.get('SALT', 10),
+      // configService.get('SALT', 10),
+      // configService.get('SALT'),
+      10
+
     );
   }
 }
