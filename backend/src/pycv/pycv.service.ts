@@ -57,27 +57,24 @@ export class PycvService {
     const response = await this.uploadFile(video);
     const videoPath = response.Url;
 
-    const pythonProcess = spawn('python3', [pythonScript, videoPath]);
+    let processedBuffer: Buffer | null = null; // 移到外部作用域
 
-    let processedBuffer: Buffer | null = null;
+    const pythonProcess = spawn('python3', [pythonScript, videoPath]);
 
     pythonProcess.stdout.on('data', (data) => {
       // Receive processed video data from Python script
       processedBuffer = Buffer.from(data, 'base64');
+      console.log('Processing buffer ->', processedBuffer);
     });
 
-    console.log('Processing buffer ->', processedBuffer);
     pythonProcess.stderr.on('data', (data) => {
       console.error(`Error: ${data}`);
     });
 
-    pythonProcess.on('close', async (code) => {
-      console.log(`Python script exited with code ${code}`);
+    return new Promise((resolve, reject) => {
+      pythonProcess.on('close', async (code) => {
+        console.log(`Python script exited with code ${code}`);
 
-      if (code === 0) {
-        // 上传处理后的视频文件
-
-        console.log('Processed video uploaded and deleted.');
         if (code === 0 && processedBuffer) {
           console.log('Video processing completed');
           const uploadedFileUrl = await this.uploadFile(
@@ -85,14 +82,14 @@ export class PycvService {
             {
               path: '/home/jiachzha/github/capstone_project_G3/test/upload_video_code/processed_video.mp4',
               originalname: 'processed_video.mp4',
-              fieldname: '',
-              encoding: '',
-              mimetype: '',
-              size: 0,
+              fieldname: 'processed_video',
+              encoding: '7bit',
+              mimetype: 'video/mp4',
+              size: processedBuffer.length,
               stream: new Readable(),
               destination: '',
-              filename: '',
-              buffer: undefined,
+              filename: 'processed_video.mp4',
+              buffer: processedBuffer, // 使用处理后的buffer
             },
             'ProcessedVideo-',
           );
@@ -103,11 +100,17 @@ export class PycvService {
           );
 
           const response = await this.uploadFile(uploadedFileUrl, 'ProcVideo-');
-          return { processedVideoUrl: response.Url };
+          resolve({ processedVideoUrl: response.Url });
         } else {
           console.error(`Video processing failed with code ${code}`);
+          reject(
+            new HttpException(
+              'Video processing failed',
+              HttpStatus.INTERNAL_SERVER_ERROR,
+            ),
+          );
         }
-      }
+      });
     });
   }
 }
