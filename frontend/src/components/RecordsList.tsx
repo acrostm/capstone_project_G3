@@ -25,8 +25,8 @@ enum MoodIndex {
   Sad
 }
 interface DailyRecord {
-  // dateTime: Date,
-  dateTime: string,
+  // create_time: Date,
+  create_time: string,
   count: number,
   mood: MoodIndex
 }
@@ -38,29 +38,29 @@ const RecordList = () => {
   // const records = await getAllRecords()
 
   const monthlyRecords: DataType[] = [{
-    date: new Date('2024-03-08T12:00:00Z'),
+    create_time: new Date('2024-03-08T12:00:00Z'),
     curls_count: 50,
     squats_count: 20,
     bridges_count: 10
   }, {
-    date: new Date('2024-03-10T12:00:00Z'),
+    create_time: new Date('2024-03-10T12:00:00Z'),
     curls_count: 15,
     squats_count: 10,
     bridges_count: 10
   }, {
-    date: new Date('2024-03-14T12:00:00Z'),
+    create_time: new Date('2024-03-14T12:00:00Z'),
 
     curls_count: 10,
     squats_count: 20,
     bridges_count: 10
   }, {
-    date: new Date('2024-03-16T12:00:00Z'),
+    create_time: new Date('2024-03-16T12:00:00Z'),
 
     curls_count: 20,
     squats_count: 10,
     bridges_count: 30
   }, {
-    date: new Date('2024-03-19T12:00:00Z'),
+    create_time: new Date('2024-03-19T12:00:00Z'),
 
     curls_count: 10,
     squats_count: 10,
@@ -72,24 +72,24 @@ const RecordList = () => {
 
   // 每日的records
   const dailyRecords: DailyRecord[] = [{
-    // dateTime: new Date(),
-    dateTime: '6:00',
+    // create_time: new Date(),
+    create_time: '6:00',
     count: 15,
     mood: 1,
   }, {
-    dateTime: '7:00',
+    create_time: '7:00',
     count: 13,
     mood: 3,
   }, {
-    dateTime: '9:00',
+    create_time: '9:00',
     count: 20,
     mood: 2,
   }, {
-    dateTime: '11:00',
+    create_time: '11:00',
     count: 30,
     mood: 2,
   }, {
-    dateTime: '16:00',
+    create_time: '16:00',
     count: 25,
     mood: 1,
   }];
@@ -98,7 +98,7 @@ const RecordList = () => {
 
   const countData = dailyRecords.map((record) => record.count)
 
-  const categories = dailyRecords.map((record) => record.dateTime)
+  const categories = dailyRecords.map((record) => record.create_time)
 
   const pieSeries = new Array(3).fill(0)
   dailyRecords.map((record) => {
@@ -139,7 +139,7 @@ const RecordList = () => {
       colors: ['transparent']
     },
     xaxis: {
-      categories: monthlyRecords.map((item) => moment(item.date).format('MM-DD-YYYY')),
+      categories: monthlyRecords.map((item) => moment(item.create_time).format('MM-DD-YYYY')),
     },
     yaxis: {
       title: {
