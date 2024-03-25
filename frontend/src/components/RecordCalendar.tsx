@@ -7,9 +7,11 @@ import squatsIcon from '@/images/icons/squats.png'
 import bridgingIcon from '@/images/icons/bridging.png'
 import { Icon } from './Icon';
 import { StaticImageData } from 'next/image';
+import { checkIsSameDay } from '@/lib/utils';
 
 interface FormatData {
-  date: number;
+  day: number;
+  date?: Date | null;
   curls: {
     count: number;
     bgColor: Color;
@@ -32,28 +34,32 @@ export interface DataType {
   bridges_count: number;
 }
 type CountType = keyof Omit<DataType, 'create_time'>
-type FormatCountType = keyof Omit<FormatData, 'date'>
+type FormatCountType = keyof Omit<FormatData, 'date' | 'day'>
 
 
 interface RecordCalendarProps {
   crtDate: Date;
   data: DataType[];
+  selectedDate: Date | null;
   minColors?: [Color, Color, Color]
   maxColors?: [Color, Color, Color]
   handleClickPreviousMonth: () => void;
   handleClickNextMonth: () => void;
   handleClickToday: () => void;
+  handleClickDaily: (date: Date) => void;
 }
 
 
 const RecordCalendar = ({
   crtDate,
   data,
+  selectedDate,
   minColors = ['#87CEFA', '#90EE90', '#FFFACD'],
   maxColors = ['#003153', '#006600', '#FFEF00'],
   handleClickNextMonth,
   handleClickPreviousMonth,
-  handleClickToday
+  handleClickToday,
+  handleClickDaily
 }: RecordCalendarProps) => {
 
   const monthStr = crtDate.toLocaleString('default', { month: 'long' })
@@ -61,7 +67,7 @@ const RecordCalendar = ({
   const year = crtDate.getFullYear()
   const date = crtDate.getDate()
 
-  let firstDate = new Date();
+  let firstDate = moment().toDate();
   firstDate.setFullYear(year, month - 1, 1)
   const weekDay = firstDate.getDay()
 
@@ -136,8 +142,6 @@ const RecordCalendar = ({
     return newColor;
   }
 
-
-
   const getFormatDates = (): FormatData[] => {
     const [curlsMin, curlsMax] = getMinAndMax(data, 'curls_count')
     const [squatsMin, squatsMax] = getMinAndMax(data, 'squats_count')
@@ -146,8 +150,9 @@ const RecordCalendar = ({
     const datesHadCount = data.map((item) => item.create_time.getDate())
     let formatDates = new Array(days);
     for (let day = 1; day <= days; day++) {
-      const item = {
-        date: day,
+      const item: FormatData = {
+        date: null,
+        day,
         curls: {
           count: 0,
           bgColor: '#ebedf0'
@@ -166,7 +171,7 @@ const RecordCalendar = ({
         const curls_count = data[crtIndex].curls_count
         const squats_count = data[crtIndex].squats_count
         const bridges_count = data[crtIndex].bridges_count
-
+        item.date = data[crtIndex].create_time
         item.curls = {
           count: curls_count,
           bgColor: calculateColor(minColors[0], maxColors[0], curls_count, curlsMin, curlsMax)
@@ -190,16 +195,15 @@ const RecordCalendar = ({
 
 
   const formatDates = getFormatDates();
-  // console.dir(formatDates)
 
-  const today = new Date();
+  const today = moment().toDate();
 
   const items: {
     icon: StaticImageData,
     key: FormatCountType
   }[] = [{ icon: bicepIcon, key: 'curls' }, { icon: squatsIcon, key: 'squats' }, { icon: bridgingIcon, key: 'bridges' }]
 
-  
+
 
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
@@ -262,6 +266,7 @@ const RecordCalendar = ({
           </div>
 
         </div>
+
         <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
           <div className={`hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-${weeks} lg:gap-px`}>
             {/* 根据 crtDate 渲染当月日历 */}
@@ -272,16 +277,23 @@ const RecordCalendar = ({
 
               const hasExercise = crt.curls.count > 0 || crt.squats.count > 0 || crt.bridges.count;
               const isToday = crtDate.getFullYear() === today.getFullYear() && crtDate.getMonth() === today.getMonth() && (i + 1) == date
+              const isSelectedDay = crt.date && checkIsSameDay(crt.date, selectedDate)
 
-              return <div key={`crt-month-date-${crt.date}`} className={`relative bg-white px-3 py-2  ${hasExercise ? 'hover:bg-sky-100 hover:cursor-pointer' : 'hover:bg-gray-100'} `}
+              return <div
+                onClick={() => {
+                  crt.date && handleClickDaily(crt.date)
+                }}
+                key={`crt-month-date-${crt.day}`}
+                className={`relative bg-white px-3 py-2  ${hasExercise ? 'hover:bg-sky-100 hover:cursor-pointer' : 'hover:bg-gray-100'} ${isSelectedDay ? 'bg-sky-100' : ''}`
+                }
               >
                 {hasExercise ? <div className='absolute top-1 right-1'>
-                  {items.map((item, i) => <Icon className='inline-block p-0.5 m-0.5' key={i} imgSrc={item.icon} width={24} height={24}
+                  {items.map((item, i) => <Icon className='inline-block p-0.5 m-0.5 rounded' key={i} imgSrc={item.icon} width={24} height={24}
                     styleObject={{ backgroundColor: crt[item.key].bgColor }}
                   />)}
                 </div> : null}
 
-                <time dateTime={`${year}-${month}-${i + 1}`} className={isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}>{crt.date}</time>
+                <time dateTime={`${year}-${month}-${i + 1}`} className={isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}>{crt.day}</time>
               </div>
             })}
 
@@ -297,14 +309,22 @@ const RecordCalendar = ({
             {formatDates.map((crt, i) => {
               const hasExercise = crt.curls.count > 0 || crt.squats.count > 0 || crt.bridges.count;
               const isToday = crtDate.getFullYear() === today.getFullYear() && crtDate.getMonth() === today.getMonth() && (i + 1) == date
-              return <button key={`crt-month-date-${crt.date}`} type="button" className={`relative flex h-14 flex-col bg-white px-3 py-2 text-gray-900 ${hasExercise ? 'hover:bg-sky-100 ' : 'hover:bg-gray-100'} focus:z-10`}>
+              const isSelectedDay = crt.date && checkIsSameDay(crt.date, selectedDate)
+              return <button
+                key={`crt-month-date-${crt.day}`}
+                type="button"
+                className={`relative flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover: cursor-auto ${hasExercise ? 'hover:bg-sky-100 hover:cursor-pointer' : 'hover:bg-gray-100'} focus:z-10 ${isSelectedDay ? 'bg-sky-100' : ''}`}
+                onClick={() => {
+                  crt.date && handleClickDaily(crt.date)
+                }}
+              >
                 {hasExercise ? <div className='absolute top-1 right-1'>
                   {items.map((item, i) => <span key={i} className="inline-block w-1 h-1 m-0.5 rounded-full" style={{
                     backgroundColor: crt[item.key].bgColor
                   }} />
                   )}
                 </div> : null}
-                <time dateTime={`${year}-${month}-${i + 1}`} className={isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}>{crt.date}</time>
+                <time dateTime={`${year}-${month}-${i + 1}`} className={isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}>{crt.day}</time>
               </button>
             })}
           </div>

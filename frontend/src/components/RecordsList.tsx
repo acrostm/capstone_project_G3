@@ -3,10 +3,13 @@
 import dynamic from 'next/dynamic';
 import moment from 'moment'
 import { ApexOptions } from "apexcharts";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import RecordCalendar, { DataType } from './RecordCalendar';
 import { Container } from '@/components/Container'
+import { Skeleton } from '@mui/material';
+import Empty from './EmptyChart';
+import { checkIsSameDay } from '@/lib/utils';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const MOOD = {
@@ -33,79 +36,100 @@ interface DailyRecord {
 
 
 const RecordList = () => {
-  const [crtDate, setCrtDate] = useState<Date>(new Date())
+  const [crtDate, setCrtDate] = useState<Date>(moment().toDate())
+  const [monthlyRecords, setMonthlyRecords] = useState<DataType[]>([])
 
-  // const records = await getAllRecords()
+  const [dailyRecords, setDailyRecords] = useState<DataType[] | null>(null)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
-  const monthlyRecords: DataType[] = [{
-    create_time: new Date('2024-03-08T12:00:00Z'),
-    curls_count: 50,
-    squats_count: 20,
-    bridges_count: 10
-  }, {
-    create_time: new Date('2024-03-10T12:00:00Z'),
-    curls_count: 15,
-    squats_count: 10,
-    bridges_count: 10
-  }, {
-    create_time: new Date('2024-03-14T12:00:00Z'),
+  useEffect(() => {
+    fetchMonthlyRecords();
+  }, [])
 
-    curls_count: 10,
-    squats_count: 20,
-    bridges_count: 10
-  }, {
-    create_time: new Date('2024-03-16T12:00:00Z'),
+  useEffect(() => {
+    fetchMonthlyRecords();
+  }, [crtDate])
 
-    curls_count: 20,
-    squats_count: 10,
-    bridges_count: 30
-  }, {
-    create_time: new Date('2024-03-19T12:00:00Z'),
+  useEffect(() => {
+    if (selectedDate) {
+      fetchDailyRecords()
+    }
+  }, [selectedDate])
 
-    curls_count: 10,
-    squats_count: 10,
-    bridges_count: 10
-  },
-  ]
+  const fetchDailyRecords = async () => {
+    if (selectedDate) {
+      try {
+        const response = await fetch('/api/record/daily', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ date: selectedDate })
+        });
+        if (!response.ok) {
+          throw new Error('Fetch records failed');
+        }
+        const responseData = await response.json();
+        setDailyRecords(responseData.data.map((item: DataType) => {
+          return {
+            ...item,
+            create_time: moment(item.create_time).toDate()
+          }
+        }))
+      } catch (error) {
+        console.error("Error in fetchDailyRecords")
+        console.error(error)
+      }
+    }
+
+  }
+  const fetchMonthlyRecords = async () => {
+    try {
+      const response = await fetch('/api/record/monthly', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ date: crtDate })
+      });
+      if (!response.ok) {
+        throw new Error('Fetch records failed');
+      }
+      const responseData = await response.json();
+      setMonthlyRecords(responseData.data.map((item: DataType) => {
+        return {
+          ...item,
+          create_time: moment(item.create_time).toDate()
+        }
+      }))
+      resetDaily()
+    } catch (error) {
+      console.error("Error in fetchMonthlyRecords")
+      console.error(error)
+    }
+
+  }
+
+  const resetDaily = () => {
+    setDailyRecords(null)
+    setSelectedDate(null)
+  }
 
 
+  // const moodData = dailyRecords?.map((record) => record.mood)
 
-  // 每日的records
-  const dailyRecords: DailyRecord[] = [{
-    // create_time: new Date(),
-    create_time: '6:00',
-    count: 15,
-    mood: 1,
-  }, {
-    create_time: '7:00',
-    count: 13,
-    mood: 3,
-  }, {
-    create_time: '9:00',
-    count: 20,
-    mood: 2,
-  }, {
-    create_time: '11:00',
-    count: 30,
-    mood: 2,
-  }, {
-    create_time: '16:00',
-    count: 25,
-    mood: 1,
-  }];
+  // const countData = dailyRecords?.map((record) => record.count)
 
-  const moodData = dailyRecords.map((record) => record.mood)
-
-  const countData = dailyRecords.map((record) => record.count)
-
-  const categories = dailyRecords.map((record) => record.create_time)
+  const categories = dailyRecords?.map((record) => record.create_time)
 
   const pieSeries = new Array(3).fill(0)
-  dailyRecords.map((record) => {
-    pieSeries[record.mood - 1]++;
-  })
+  // dailyRecords.map((record) => {
+  //   pieSeries[record.mood - 1]++;
+  // })
 
-  const columnChartOptions: ApexOptions = {
+  const monthlyColumnChartOptions: ApexOptions = {
     series: [{
       name: 'Curls',
       data: monthlyRecords.map((item) => item.curls_count)
@@ -151,94 +175,138 @@ const RecordList = () => {
     },
   }
 
-  const lineChartOptions: ApexOptions = {
-    // Define your chart options here
+  const dailyColumnChartOptions: ApexOptions = {
+    series: [{
+      name: 'Curls',
+      data: dailyRecords?.map((item) => item.curls_count) ?? []
+    }, {
+      name: 'Squats',
+      data: dailyRecords?.map((item) => item.squats_count) ?? []
+    }, {
+      name: 'Bridges',
+      data: dailyRecords?.map((item) => item.bridges_count) ?? []
+    }],
     chart: {
-      width: 400,
-      type: 'line',
+      type: 'bar',
+      height: 350,
       toolbar: {
         show: false
       },
-      zoom: {
-        enabled: false
-      }
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+      },
     },
     dataLabels: {
-      enabled: true,
-      formatter: (value, { seriesIndex, dataPointIndex, w }) => {
-        if (seriesIndex == 1) {
-          return MOOD[value as MoodIndex]
-        }
-        return `${value}`;
-      }
+      enabled: false
     },
-    tooltip: {
-      y: [{
-        formatter: undefined,
-      }, {
-        formatter: (val): string => {
-
-          return MOOD[val as MoodIndex]
-        }
-      }],
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['transparent']
     },
-    series: [
-      {
-        name: 'Count',
-        data: countData
-      },
-      {
-        name: 'Mood',
-        data: moodData
-      },
-    ],
     xaxis: {
-      categories: categories
+      categories: dailyRecords?.map((item) => moment(item.create_time).format('hh:mm')),
     },
-    yaxis: [
-      {
-        title: {
-          text: "Count"
-        },
-      },
-      {
-        opposite: true,
-        title: {
-          text: "Mood"
-        },
-        min: 1,
-        max: 3,
-        tickAmount: 2
+    yaxis: {
+      title: {
+        text: 'Count'
       }
-    ],
-  };
-
-
-  const pieChartOptions: ApexOptions = {
-    series: pieSeries,
-    chart: {
-      type: 'donut',
     },
-    labels: Object.values(MOOD),
-    responsive: [{
-      breakpoint: 480,
-      options: {
-        chart: {
-          width: 200
-        },
-        legend: {
-          position: 'bottom'
-        }
-      }
-    }]
-  };
+    fill: {
+      opacity: 1
+    },
+  }
 
+  // const lineChartOptions: ApexOptions = {
+  //   // Define your chart options here
+  //   chart: {
+  //     width: 400,
+  //     type: 'line',
+  //     toolbar: {
+  //       show: false
+  //     },
+  //     zoom: {
+  //       enabled: false
+  //     }
+  //   },
+  //   dataLabels: {
+  //     enabled: true,
+  //     formatter: (value, { seriesIndex, dataPointIndex, w }) => {
+  //       if (seriesIndex == 1) {
+  //         return MOOD[value as MoodIndex]
+  //       }
+  //       return `${value}`;
+  //     }
+  //   },
+  //   tooltip: {
+  //     y: [{
+  //       formatter: undefined,
+  //     }, {
+  //       formatter: (val): string => {
+
+  //         return MOOD[val as MoodIndex]
+  //       }
+  //     }],
+  //   },
+  //   series: [
+  //     {
+  //       name: 'Count',
+  //       data: countData
+  //     },
+  //     {
+  //       name: 'Mood',
+  //       data: moodData
+  //     },
+  //   ],
+  //   xaxis: {
+  //     categories: categories
+  //   },
+  //   yaxis: [
+  //     {
+  //       title: {
+  //         text: "Count"
+  //       },
+  //     },
+  //     {
+  //       opposite: true,
+  //       title: {
+  //         text: "Mood"
+  //       },
+  //       min: 1,
+  //       max: 3,
+  //       tickAmount: 2
+  //     }
+  //   ],
+  // };
+
+
+  // const pieChartOptions: ApexOptions = {
+  //   series: pieSeries,
+  //   chart: {
+  //     type: 'donut',
+  //   },
+  //   labels: Object.values(MOOD),
+  //   responsive: [{
+  //     breakpoint: 480,
+  //     options: {
+  //       chart: {
+  //         width: 200
+  //       },
+  //       legend: {
+  //         position: 'bottom'
+  //       }
+  //     }
+  //   }]
+  // };
 
 
   const onHandleClickPreviousMonth = (): void => {
     const previousMonth = moment(crtDate).subtract(1, 'months').endOf('month').toDate()
-    if (checkIsSameMonth(previousMonth, new Date())) {
-      setCrtDate(new Date())
+    if (checkIsSameMonth(previousMonth, moment().toDate())) {
+      setCrtDate(moment().toDate())
     } else {
       setCrtDate(previousMonth)
     }
@@ -246,77 +314,96 @@ const RecordList = () => {
 
   const onHandleClickNextMonth = (): void => {
     const nextMonth = moment(crtDate).add(1, 'months').endOf('month').toDate()
-    if (checkIsSameMonth(nextMonth, new Date())) {
-      setCrtDate(new Date())
+    if (checkIsSameMonth(nextMonth, moment().toDate())) {
+      setCrtDate(moment().toDate())
     } else {
       setCrtDate(nextMonth)
     }
   }
 
   const onHandleClickToday = (): void => {
-    setCrtDate(new Date())
+    setCrtDate(moment().toDate())
+  }
+
+  const onHandleClickDaily = (date: Date): void => {
+    if (selectedDate && checkIsSameDay(selectedDate, date)) {
+      setSelectedDate(null)
+    } else {
+      setSelectedDate(date)
+    }
   }
 
   const checkIsSameMonth = (d1: Date, d2: Date): boolean => {
     return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth()
   }
 
+
   return (
     <Container className='w-full' >
+
       <div className='p-4'>
         <RecordCalendar
           crtDate={crtDate}
           data={monthlyRecords}
+          selectedDate={selectedDate}
           handleClickPreviousMonth={onHandleClickPreviousMonth}
           handleClickNextMonth={onHandleClickNextMonth}
           handleClickToday={onHandleClickToday}
+          handleClickDaily={onHandleClickDaily}
         />
       </div>
 
 
       {/* 综合当月count的图 */}
       <div id="column-chart" className='w-full'>
-        <ReactApexChart
-          options={columnChartOptions}
-          series={columnChartOptions.series}
-          type="bar"
-          height={CHART_HEIGHT}
-          width={'100%'}
-        />
+        {monthlyRecords.length > 0 ?
+          <ReactApexChart
+            options={monthlyColumnChartOptions}
+            series={monthlyColumnChartOptions.series}
+            type="bar"
+            height={CHART_HEIGHT}
+            width={'100%'}
+          /> : <Empty />}
+
       </div>
 
 
       {/* 默认隐藏线形图和饼图，当点击某天时再展示 */}
-      <div className="relative" >
-        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-gray-300" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-white px-2 text-sm text-gray-500">Daily Records</span>
-        </div>
-      </div >
+      {dailyRecords && selectedDate ?
+        <>
+          <div className="relative" >
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-2 text-sm text-gray-500">Daily Records</span>
+            </div>
+          </div>
 
-      <div className='flex w-full'>
-        <div id="line-chart" className='w-6/12'>
-          <ReactApexChart
-            options={lineChartOptions}
-            series={lineChartOptions.series}
-            type="line"
-            height={CHART_HEIGHT}
-            width={'100%'}
-          />
-        </div>
+          {dailyRecords.length > 0 ?
+            <div className='flex w-full'>
+              <div id="line-chart" className='w-6/12'>
+                <ReactApexChart
+                  options={dailyColumnChartOptions}
+                  series={dailyColumnChartOptions.series}
+                  type="bar"
+                  height={CHART_HEIGHT}
+                  width={'100%'}
+                />
+              </div>
 
-        <div id="pie-chart" className='w-6/12 mt-4'>
-          <ReactApexChart
+              <div id="pie-chart" className='w-6/12 mt-4'>
+                {/* <ReactApexChart
             options={pieChartOptions}
             series={pieChartOptions.series}
             type="donut"
             height={CHART_HEIGHT}
             width={'100%'}
-          />
-        </div>
-      </div>
+          /> */}
+              </div>
+            </div> : <Empty />}
+        </>
+        : null}
 
 
     </Container >

@@ -33,7 +33,10 @@ import { RecordsModule } from './records/records.module';
         retryDelay: 500, // 重试连接数据库间隔
         retryAttempts: 10, // 充实次数
         autoLoadEntities: true,
-        timezone: '+00:00' //将数据库连接的时区设置为 UTC+0
+        timezone: '+00:00', //将数据库连接的时区设置为 UTC+0
+        extra: {
+          decimalNumbers: true  // 返回的为int而非string
+        },
       }),
     }),
     MulterModule,
