@@ -132,6 +132,16 @@ def connected():
 def handle_disconnect():
     print('Client disconnected, SID:', request.sid)
 
+@socketio.on('stop')
+def handle_stop(data):
+    print(f'Received stop signal: {data}')
+    summary = 'this is summary'
+    # 向客户端发送总结信息
+    socketio.emit('summary', {'summary': summary})
+    # 注意: 通常由客户端控制断开连接，可以发送一个信号让客户端知道可以断开连接了
+    # emit('disconnect_request')  # 客户端应监听此事件并断开连接
+
+
 @socketio.on('image')
 def handle_image(data, socketId):
     logging.info(f"Received image data from {socketId}")
