@@ -1,13 +1,19 @@
 // refer: https://medium.com/@jadomene99/integrating-your-opencv-project-into-a-react-component-using-flask-6bcf909c07f4
 
 "use client"
-import { CamProps } from "../../types";
+import { CamProps, MoodKeyType } from "../../types";
 import React, { useRef } from "react";
 import { io, Socket } from 'socket.io-client';
 import useState from 'react-usestateref';
 import Image from 'next/image'
-import ErrorIcon from '@mui/icons-material/Error';
+
+import bicepIcon from '@/images/icons/bicep_color.png'
+import squatsIcon from '@/images/icons/squats_color.png'
+import bridgingIcon from '@/images/icons/bridging_color.png'
+
 import { Button } from "./Button";
+import { Icon } from "./Icon";
+import SubmitDialog from "./SubmitDialog";
 
 
 const DEV_HOST = "127.0.0.1:5001"
@@ -52,8 +58,8 @@ const Cam = ({ containerStyles }: CamProps) => {
   const [bridgesCount, setBridgesCount] = useState(0);
   const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
-
-
+  const [dialogOpen, setODialogOpen] = useState(false)
+  const [mood, setMood] = useState<MoodKeyType | null>(null)
 
   const connectSocket = () => {
     const crtSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
@@ -176,24 +182,51 @@ const Cam = ({ containerStyles }: CamProps) => {
     closeSocket();
   }
 
+  const handleDialogOpenStatus = () => {
+    if (dialogOpen) {
+      resetDialog()
+    }
+    setODialogOpen(!dialogOpen)
+  }
+
+  const handleDialogSubmit = (mood: MoodKeyType) => {
+    // TODO: submit record
+    console.log(mood)
+    handleDialogOpenStatus()
+  }
+
+  const handleSelectMood = (mood: MoodKeyType) => {
+    setMood(mood)
+  }
+
+  const resetDialog = () => {
+    setMood(null)
+  }
+
   return (
     <>
 
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <Button color={!recordingStatus ? "cyan" : "gray"} style={{ marginRight: '1rem' }} onClick={startVideo} disabled={recordingStatus}>Start</Button>
-          <Button color={recordingStatus ? "cyan" : "gray"} onClick={stopVideo} disabled={!recordingStatus}>Stop</Button>
+          <Button className="mr-4" color={!recordingStatus ? "cyan" : "gray"} onClick={startVideo} disabled={recordingStatus}>Start</Button>
+          <Button className="mr-4" color={recordingStatus ? "cyan" : "gray"} onClick={stopVideo} disabled={!recordingStatus}>Stop</Button>
+          <Button onClick={handleDialogOpenStatus}>
+            Test dialog
+          </Button>
+
+
         </div>
         <div className="flex items-center justify-between  w-96">
-          <div>
-            <span className="mr-4">Curls:{curlsCount}</span>
-            <span className="mr-4">Squats:{squatsCount}</span>
-            <span className="mr-4">Bridges:{bridgesCount}</span>
-          </div>
-          <div style={{ color: STATUS_COLOR[status] }}>
+
+          {[{ icon: bicepIcon, count: curlsCount, size: 50, color: '#ef5d43' }, { icon: squatsIcon, count: squatsCount, size: 60, color: '#87c7fa' }, { icon: bridgingIcon, count: bridgesCount, size: 70, color: '#b94497' }]
+            .map((item, i) => <div className="flex-1" key={i}><Icon className='inline-block p-0.5 m-0.5 rounded' width={item.size} height={item.size} imgSrc={item.icon} />
+              <span key={i} className="mr-4 text-3xl align-middle" style={{ color: item.color }}>{item.count}</span>
+            </div>)}
+
+          {/* <div style={{ color: STATUS_COLOR[status] }}>
             <ErrorIcon className="align-middle" />
             <span className="align-middle">{statusMsg}</span>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="h-screen" style={{ width: WIDTH, margin: '0 auto' }}>
@@ -210,6 +243,14 @@ const Cam = ({ containerStyles }: CamProps) => {
           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
         </div>
       </div>
+
+      <SubmitDialog
+        open={dialogOpen}
+        countsSummary={{ curls: curlsCount, squats: squatsCount, bridges: bridgesCount }}
+        mood={mood}
+        handleClose={handleDialogOpenStatus}
+        handleSelect={handleSelectMood}
+        handleSubmit={handleDialogSubmit} />
 
     </>
 

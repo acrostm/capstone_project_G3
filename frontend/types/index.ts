@@ -15,3 +15,11 @@ type RGBA = `rgba(${number}, ${number}, ${number}, ${number})`;
 type HEX = `#${string}`;
 
 export type Color = RGB | RGBA | HEX | string;
+
+export enum MoodType {
+  SAD = '😞',
+  ANGRY = '😡',
+  HAPPY = '🤩'
+}
+
+export type MoodKeyType = keyof typeof MoodType

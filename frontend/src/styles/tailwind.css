@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.animate-bounce-2{
+  animation: bounce 1s 2;
+}
+.hover-div-scale-125:hover > div {
+  transform: scale(1.25);
+} 
