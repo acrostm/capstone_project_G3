@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 
 import RecordCalendar, { DataType } from './RecordCalendar';
 import { Container } from '@/components/Container'
-import { Skeleton } from '@mui/material';
 import Empty from './EmptyChart';
 import { checkIsSameDay } from '@/lib/utils';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
