@@ -59,7 +59,6 @@ const Cam = ({ containerStyles }: CamProps) => {
   const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
   const [dialogOpen, setODialogOpen] = useState(false)
-  const [mood, setMood] = useState<MoodKeyType | null>(null)
 
   const connectSocket = () => {
     const crtSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
@@ -183,9 +182,6 @@ const Cam = ({ containerStyles }: CamProps) => {
   }
 
   const handleDialogOpenStatus = () => {
-    if (dialogOpen) {
-      resetDialog()
-    }
     setODialogOpen(!dialogOpen)
   }
 
@@ -193,14 +189,6 @@ const Cam = ({ containerStyles }: CamProps) => {
     // TODO: submit record
     console.log(mood)
     handleDialogOpenStatus()
-  }
-
-  const handleSelectMood = (mood: MoodKeyType) => {
-    setMood(mood)
-  }
-
-  const resetDialog = () => {
-    setMood(null)
   }
 
   return (
@@ -247,9 +235,7 @@ const Cam = ({ containerStyles }: CamProps) => {
       <SubmitDialog
         open={dialogOpen}
         countsSummary={{ curls: curlsCount, squats: squatsCount, bridges: bridgesCount }}
-        mood={mood}
         handleClose={handleDialogOpenStatus}
-        handleSelect={handleSelectMood}
         handleSubmit={handleDialogSubmit} />
 
     </>

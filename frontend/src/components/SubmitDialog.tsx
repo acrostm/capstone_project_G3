@@ -5,6 +5,7 @@ import squatsIcon from '@/images/icons/squats_color.png'
 import bridgingIcon from '@/images/icons/bridging_color.png'
 import { Icon } from "./Icon";
 import { MoodType, MoodKeyType } from "../../types";
+import { useState } from "react";
 
 
 interface submitDialogProp {
@@ -14,24 +15,34 @@ interface submitDialogProp {
     squats: number;
     bridges: number;
   };
-  mood: MoodKeyType | null
   handleClose: () => void;
-  handleSelect: (mood: MoodKeyType) => void;
   handleSubmit: (mood: MoodKeyType) => void;
 }
-const SubmitDialog = ({ open, countsSummary, mood, handleClose, handleSelect, handleSubmit }: submitDialogProp) => {
+const SubmitDialog = ({ open, countsSummary, handleClose, handleSubmit }: submitDialogProp) => {
 
+  const [mood, setMood] = useState<MoodKeyType | null>(null)
+  const handleSelect = (mood: MoodKeyType) => {
+    setMood(mood)
+  }
+
+  const resetDialog = () => {
+    setMood(null)
+  }
+
+  const handleCloseDialog = () => {
+    resetDialog();
+    handleClose();
+  }
   return <Dialog
     className="min-w-80"
     open={open}
-    onClose={handleClose}
+    onClose={handleCloseDialog}
     keepMounted={true}
     PaperProps={{
       component: 'form',
       onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (mood) handleSubmit(mood)
-
       },
     }}
   >
