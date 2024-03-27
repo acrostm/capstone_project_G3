@@ -70,7 +70,7 @@ const Cam = ({ containerStyles }: CamProps) => {
   const [dialogOpen, setODialogOpen] = useState(false)
   const [summaryScore, setSummaryScore] = useState(0)
 
-  const postRecord = async () => {
+  const postRecord = async (mood: MoodKeyType) => {
     try {
       const response = await fetch('/api/record', {
         method: 'POST',
@@ -78,7 +78,7 @@ const Cam = ({ containerStyles }: CamProps) => {
           Authorization: `Bearer ${localStorage.token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ curls_count: curlsCount, squats_count: squatsCount, bridges_count: bridgesCount })
+        body: JSON.stringify({ curls_count: curlsCount, squats_count: squatsCount, bridges_count: bridgesCount, score: summaryScore, mood })
       });
       if (!response.ok) {
         throw new Error('Post record failed');
@@ -237,7 +237,7 @@ const Cam = ({ containerStyles }: CamProps) => {
   const handleDialogSubmit = (mood: MoodKeyType) => {
     // TODO: submit record
     console.log(mood)
-    postRecord();
+    postRecord(mood);
   }
 
   const resetCounts = () => {
