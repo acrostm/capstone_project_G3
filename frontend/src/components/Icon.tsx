@@ -11,6 +11,6 @@ interface IconType {
 }
 export function Icon({ className, styleObject, imgSrc, alt = "icon", width = 100, height = 100 }: IconType) {
   return (
-    <Image alt={alt} className={className} style={styleObject} src={imgSrc} width={width} height={height} />
+    <Image alt={alt} className={className} style={{ ...styleObject, width, height }} src={imgSrc} width={width} height={height} />
   )
 }
