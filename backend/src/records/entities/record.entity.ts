@@ -16,6 +16,12 @@ export class Record {
   @Column({ type: 'int', default: 0 })
   bridges_count: number;
 
+  @Column({type: 'float', default: 0})
+  score: number;
+
+  @Column({ length: 50, default: '' })
+  mood: string;
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

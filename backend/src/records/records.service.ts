@@ -81,7 +81,7 @@ export class RecordsService {
 
     const records = await this.recordRepository
       .createQueryBuilder('record')
-      .select("curls_count, squats_count, bridges_count, create_time")
+      .select("curls_count, squats_count, bridges_count, score, mood, create_time")
       .where('record.userId = :userId', { userId: user.id })
       .andWhere('record.create_time BETWEEN :start AND :end', { start, end })
       .orderBy('record.create_time', 'ASC')
