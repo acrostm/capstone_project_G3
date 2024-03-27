@@ -21,7 +21,7 @@ const PROD_HOST = "https://www.3cap.xyz"  // TODO: PRODUCT HOST
 const HOST = process.env.NODE_ENV === 'development' ? DEV_HOST : PROD_HOST
 
 const WIDTH = 640, HEIGHT = 360;
-interface SocketResponseType {
+interface ImageSocketResponseType {
   image: string;
   counts: {
     count_curls: number;
@@ -30,12 +30,21 @@ interface SocketResponseType {
     action: string; // 'curl' | 'squats' | 'bridges' | 'no action'
   }
 }
+interface SummarySocketResponseType {
+  score: number;
+  count_curls: number;
+  count_squats: number;
+  count_bridges: number;
+}
+
 interface ServerToClientEvents {
-  response: (data: SocketResponseType) => void;
+  response: (data: ImageSocketResponseType) => void;
+  summary: (data: SummarySocketResponseType) => void;
 }
 
 interface ClientToServerEvents {
   image: () => void;
+  stop: () => void;
 }
 
 const STATUS_COLOR = {
@@ -59,7 +68,31 @@ const Cam = ({ containerStyles }: CamProps) => {
   const [socket, setSocket, socketRef] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>();
   const [recordingStatus, setRecordingStatus, statusRef] = useState(false)
   const [dialogOpen, setODialogOpen] = useState(false)
-  const [mood, setMood] = useState<MoodKeyType | null>(null)
+  const [summaryScore, setSummaryScore] = useState(0)
+
+  const postRecord = async () => {
+    try {
+      const response = await fetch('/api/record', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ curls_count: curlsCount, squats_count: squatsCount, bridges_count: bridgesCount })
+      });
+      if (!response.ok) {
+        throw new Error('Post record failed');
+      }
+      const responseData = await response.json();
+      if (responseData.code === 200) {
+        console.log("record success")
+        handleDialogOpenStatus()
+        resetCounts()
+      }
+    } catch (error) {
+      console.error("record fail")
+    }
+  }
 
   const connectSocket = () => {
     const crtSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
@@ -72,7 +105,7 @@ const Cam = ({ containerStyles }: CamProps) => {
     crtSocket.on("disconnect", () => {
       console.log("success disconnect");
     });
-    crtSocket.on('response', (data: SocketResponseType) => {
+    crtSocket.on('response', (data: ImageSocketResponseType) => {
       // 将接收到的 Base64 字符串转换为图像 URL
       console.dir(data);
       const { image, counts } = data;
@@ -94,6 +127,15 @@ const Cam = ({ containerStyles }: CamProps) => {
         setSquatsCount(counts.count_bridges)
       }
     });
+
+    crtSocket.on('summary', (data: SummarySocketResponseType) => {
+      const { score, count_curls, count_squats, count_bridges } = data;
+      setCurlsCount(count_curls)
+      setSquatsCount(count_squats)
+      setSquatsCount(count_bridges)
+      stopVideo()
+      handleDialogOpenStatus()
+    })
   }
 
   const closeSocket = () => {
@@ -182,25 +224,26 @@ const Cam = ({ containerStyles }: CamProps) => {
     closeSocket();
   }
 
+  const handleStopVideo = () => {
+    const crtSocket: Socket | undefined = socketRef.current;
+    crtSocket && crtSocket.emit('stop', crtSocket.id)
+  }
+
   const handleDialogOpenStatus = () => {
-    if (dialogOpen) {
-      resetDialog()
-    }
     setODialogOpen(!dialogOpen)
   }
 
   const handleDialogSubmit = (mood: MoodKeyType) => {
     // TODO: submit record
     console.log(mood)
-    handleDialogOpenStatus()
+    postRecord();
   }
 
-  const handleSelectMood = (mood: MoodKeyType) => {
-    setMood(mood)
-  }
-
-  const resetDialog = () => {
-    setMood(null)
+  const resetCounts = () => {
+    setCurlsCount(0)
+    setSquatsCount(0)
+    setBridgesCount(0)
+    setSummaryScore(0)
   }
 
   return (
@@ -209,10 +252,10 @@ const Cam = ({ containerStyles }: CamProps) => {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <Button className="mr-4" color={!recordingStatus ? "cyan" : "gray"} onClick={startVideo} disabled={recordingStatus}>Start</Button>
-          <Button className="mr-4" color={recordingStatus ? "cyan" : "gray"} onClick={stopVideo} disabled={!recordingStatus}>Stop</Button>
-          <Button onClick={handleDialogOpenStatus}>
+          <Button className="mr-4" color={recordingStatus ? "cyan" : "gray"} onClick={handleStopVideo} disabled={!recordingStatus}>Stop</Button>
+          {/* <Button onClick={handleDialogOpenStatus}>
             Test dialog
-          </Button>
+          </Button> */}
 
 
         </div>
@@ -247,9 +290,8 @@ const Cam = ({ containerStyles }: CamProps) => {
       <SubmitDialog
         open={dialogOpen}
         countsSummary={{ curls: curlsCount, squats: squatsCount, bridges: bridgesCount }}
-        mood={mood}
+        score={summaryScore}
         handleClose={handleDialogOpenStatus}
-        handleSelect={handleSelectMood}
         handleSubmit={handleDialogSubmit} />
 
     </>
