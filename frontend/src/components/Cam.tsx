@@ -124,7 +124,7 @@ const Cam = ({ containerStyles }: CamProps) => {
       }
       if (counts.count_bridges > MAX_BRIDGES_COUNT) {
         MAX_SQUATS_COUNT = counts.count_bridges
-        setSquatsCount(counts.count_bridges)
+        setBridgesCount(counts.count_bridges)
       }
     });
 
@@ -132,7 +132,8 @@ const Cam = ({ containerStyles }: CamProps) => {
       const { score, count_curls, count_squats, count_bridges } = data;
       setCurlsCount(count_curls)
       setSquatsCount(count_squats)
-      setSquatsCount(count_bridges)
+      setBridgesCount(count_bridges)
+      setSummaryScore(score)
       stopVideo()
       handleDialogOpenStatus()
     })
