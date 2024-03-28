@@ -122,9 +122,11 @@ def index():
     return render_template('index.html')
 
 
-
+client_confidences = {}  # Tracks confidence scores for each client
 @socketio.on('connect')
 def connected():
+    global client_confidences
+    client_confidences[request.sid] = []  # Initialize an empty list for confidence scores
     logging.info(f"Client connected, SID: {request.sid}")
     face.reset_mediapipe()  # 调用 face.py 中的重置函数
 
@@ -133,13 +135,19 @@ def handle_disconnect():
     print('Client disconnected, SID:', request.sid)
 
 @socketio.on('stop')
-def handle_stop(data):
-    print(f'Received stop signal: {data}')
-    summary = 'this is summary'
-    # 向客户端发送总结信息
-    socketio.emit('summary', {'summary': summary})
-    # 注意: 通常由客户端控制断开连接，可以发送一个信号让客户端知道可以断开连接了
-    # emit('disconnect_request')  # 客户端应监听此事件并断开连接
+def handle_stop(socketId):
+    logging.info(f'Received stop signal: {socketId}')
+    # Hypothetical function to get the average confidence score
+    # This part needs to be implemented based on how you decide to accumulate confidence scores in face.py
+    average_confidence = face.get_average_confidence()  
+    summary = {
+        "score": average_confidence, 
+        "count_curls": face.count_curls,
+        "count_squats": face.count_squats,
+        "count_bridges": face.count_bridges
+    }
+    print(summary)
+    socketio.emit('summary', summary, to=socketId)
 
 
 @socketio.on('image')
