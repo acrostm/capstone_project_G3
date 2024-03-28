@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import moment from 'moment';
 
-import { Color } from '../../types';
+import { Color, MoodKeyType } from '../../types';
 import bicepIcon from '@/images/icons/bicep.png'
 import squatsIcon from '@/images/icons/squats.png'
 import bridgingIcon from '@/images/icons/bridging.png'
@@ -32,8 +32,10 @@ export interface DataType {
   curls_count: number;
   squats_count: number;
   bridges_count: number;
+  score: number;
+  mood: MoodKeyType;
 }
-type CountType = keyof Omit<DataType, 'create_time'>
+type CountType = keyof Omit<DataType, 'create_time' | 'score' | 'mood'>
 type FormatCountType = keyof Omit<FormatData, 'date' | 'day'>
 
 
@@ -91,7 +93,7 @@ const RecordCalendar = ({
 
   const getMinAndMax = (list: DataType[], type: CountType): [number, number] => {
     let min = Infinity, max = -Infinity
-    list.forEach(item => {
+    list.filter(item => item[type] > 0).forEach(item => {
       const count = item[type]
       if (count < min) min = count;
       if (count > max) max = count;
@@ -278,19 +280,19 @@ const RecordCalendar = ({
               const hasExercise = crt.curls.count > 0 || crt.squats.count > 0 || crt.bridges.count;
               const isToday = crtDate.getFullYear() === today.getFullYear() && crtDate.getMonth() === today.getMonth() && (i + 1) == date
               const isSelectedDay = crt.date && checkIsSameDay(crt.date, selectedDate)
-
+             
               return <div
                 onClick={() => {
                   crt.date && handleClickDaily(crt.date)
                 }}
                 key={`crt-month-date-${crt.day}`}
-                className={`relative bg-white px-3 py-2  ${hasExercise ? 'hover:bg-sky-100 hover:cursor-pointer' : 'hover:bg-gray-100'} ${isSelectedDay ? 'bg-sky-100' : ''}`
+                className={`relative px-3 py-2  ${hasExercise ? 'hover:bg-sky-100 hover:cursor-pointer' : 'hover:bg-gray-100'} ${isSelectedDay ? 'bg-sky-100' : 'bg-white'}`
                 }
               >
                 {hasExercise ? <div className='absolute top-1 right-1'>
-                  {items.map((item, i) => <Icon className='inline-block p-0.5 m-0.5 rounded' key={i} imgSrc={item.icon} width={24} height={24}
+                  {items.map((item, i) => crt[item.key].count > 0 ? <Icon className='inline-block p-0.5 m-0.5 rounded' key={i} imgSrc={item.icon} width={24} height={24}
                     styleObject={{ backgroundColor: crt[item.key].bgColor }}
-                  />)}
+                  /> : null)}
                 </div> : null}
 
                 <time dateTime={`${year}-${month}-${i + 1}`} className={isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}>{crt.day}</time>
@@ -313,15 +315,15 @@ const RecordCalendar = ({
               return <button
                 key={`crt-month-date-${crt.day}`}
                 type="button"
-                className={`relative flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover: cursor-auto ${hasExercise ? 'hover:bg-sky-100 hover:cursor-pointer' : 'hover:bg-gray-100'} focus:z-10 ${isSelectedDay ? 'bg-sky-100' : ''}`}
+                className={`relative flex h-14 flex-col  px-3 py-2 text-gray-900 hover: cursor-auto ${hasExercise ? 'hover:bg-sky-100 hover:cursor-pointer' : 'hover:bg-gray-100'} focus:z-10 ${isSelectedDay ? 'bg-sky-100' : 'bg-white'}`}
                 onClick={() => {
                   crt.date && handleClickDaily(crt.date)
                 }}
               >
                 {hasExercise ? <div className='absolute top-1 right-1'>
-                  {items.map((item, i) => <span key={i} className="inline-block w-1 h-1 m-0.5 rounded-full" style={{
+                  {items.map((item, i) => crt[item.key].count > 0 ? <span key={i} className="inline-block w-1 h-1 m-0.5 rounded-full" style={{
                     backgroundColor: crt[item.key].bgColor
-                  }} />
+                  }} /> : null
                   )}
                 </div> : null}
                 <time dateTime={`${year}-${month}-${i + 1}`} className={isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}>{crt.day}</time>
