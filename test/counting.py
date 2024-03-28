@@ -37,20 +37,14 @@ def counting_curls(img, count, dir, pTime):
             
             # 计算角度
             angle = calculate_angle(shoulder, elbow, wrist)
-            
-            # 根据角度更新计数和方向
-            angle = calculate_angle(shoulder, elbow, wrist)
 
             # 假设卷曲动作的角度范围是从50度（几乎伸直）到160度（完全卷曲）
-            if angle > 160:
-                if dir == 0:
-                    count += 0.5  # 开始卷曲，计数增加0.5
-                    dir = 1  # 改变方向，表示哑铃正在被卷起
+            if angle > 160 and dir == 0:
+                dir = 1  # 改变方向，表示哑铃正在被卷起
 
-            if angle < 50:
-                if dir == 1:
-                    count += 0.5  # 完成卷曲，计数再增加0.5，总共增加1
-                    dir = 0  # 改变方向，准备下一个卷曲动作
+            if angle < 50 and dir == 1:
+                count += 1 # 完成卷曲，计数再增加1
+                dir = 0  # 改变方向，准备下一个卷曲动作
                         
             # 可视化
             #mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
