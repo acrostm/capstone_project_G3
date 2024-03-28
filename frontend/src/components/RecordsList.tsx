@@ -9,6 +9,7 @@ import RecordCalendar, { DataType } from './RecordCalendar';
 import { Container } from '@/components/Container'
 import Empty from './EmptyChart';
 import { checkIsSameDay } from '@/lib/utils';
+import { MoodType } from '../../types';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const MOOD = {
@@ -117,12 +118,6 @@ const RecordList = () => {
   }
 
 
-  // const moodData = dailyRecords?.map((record) => record.mood)
-
-  // const countData = dailyRecords?.map((record) => record.count)
-
-  const categories = dailyRecords?.map((record) => record.create_time)
-
   const pieSeries = new Array(3).fill(0)
   // dailyRecords.map((record) => {
   //   pieSeries[record.mood - 1]++;
@@ -141,7 +136,6 @@ const RecordList = () => {
     }],
     chart: {
       type: 'bar',
-      height: 350,
       toolbar: {
         show: false
       },
@@ -175,19 +169,30 @@ const RecordList = () => {
   }
 
   const dailyColumnChartOptions: ApexOptions = {
+    title: {
+      text: 'Daily Records & Scores',
+      align: 'left'
+    },
     series: [{
       name: 'Curls',
+      type: 'column',
       data: dailyRecords?.map((item) => item.curls_count) ?? []
     }, {
       name: 'Squats',
+      type: 'column',
       data: dailyRecords?.map((item) => item.squats_count) ?? []
     }, {
       name: 'Bridges',
+      type: 'column',
       data: dailyRecords?.map((item) => item.bridges_count) ?? []
-    }],
+    }, {
+      name: 'Score',
+      type: 'line',
+      data: dailyRecords?.map((item) => item.score) ?? []
+    }
+    ],
     chart: {
-      type: 'bar',
-      height: 350,
+      type: 'line',
       toolbar: {
         show: false
       },
@@ -199,87 +204,74 @@ const RecordList = () => {
       },
     },
     dataLabels: {
-      enabled: false
+      enabled: true,
+      enabledOnSeries: [3]
     },
     stroke: {
       show: true,
       width: 2,
-      colors: ['transparent']
     },
     xaxis: {
       categories: dailyRecords?.map((item) => moment(item.create_time).format('hh:mm')),
     },
-    yaxis: {
+    yaxis: [{
       title: {
-        text: 'Count'
-      }
-    },
+        text: 'Count',
+      },
+    }, {
+      opposite: true,
+      title: {
+        text: 'Score'
+      },
+      max: 100,
+      min: 0
+    }],
     fill: {
       opacity: 1
     },
   }
 
-  // const lineChartOptions: ApexOptions = {
-  //   // Define your chart options here
-  //   chart: {
-  //     width: 400,
-  //     type: 'line',
-  //     toolbar: {
-  //       show: false
-  //     },
-  //     zoom: {
-  //       enabled: false
-  //     }
-  //   },
-  //   dataLabels: {
-  //     enabled: true,
-  //     formatter: (value, { seriesIndex, dataPointIndex, w }) => {
-  //       if (seriesIndex == 1) {
-  //         return MOOD[value as MoodIndex]
-  //       }
-  //       return `${value}`;
-  //     }
-  //   },
-  //   tooltip: {
-  //     y: [{
-  //       formatter: undefined,
-  //     }, {
-  //       formatter: (val): string => {
+  const dailyMoodLineChartOptions: ApexOptions = {
+    title: {
+      text: 'Daily Mood',
+      align: 'left'
+    },
+    series: [{
+      name: 'Mood',
+      data: dailyRecords?.map((item) => Object.keys(MoodType).indexOf(item.mood)) ?? []
+    }],
+    chart: {
+      type: 'line',
+      toolbar: {
+        show: false
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (value) => {
+        return Object.values(MoodType)[value as number];
+      }
+    },
+    tooltip: {
+      y: {
+        formatter: (val): string => {
+          return Object.values(MoodType)[val as number]
+        }
+      },
+    },
+    colors: ['#d589f6'],
+    stroke: {
+      show: true,
+      width: 2,
+    },
+    xaxis: {
+      categories: dailyRecords?.map((item) => moment(item.create_time).format('hh:mm')),
+    },
+    yaxis: {
+      show: false
+    }
+  }
 
-  //         return MOOD[val as MoodIndex]
-  //       }
-  //     }],
-  //   },
-  //   series: [
-  //     {
-  //       name: 'Count',
-  //       data: countData
-  //     },
-  //     {
-  //       name: 'Mood',
-  //       data: moodData
-  //     },
-  //   ],
-  //   xaxis: {
-  //     categories: categories
-  //   },
-  //   yaxis: [
-  //     {
-  //       title: {
-  //         text: "Count"
-  //       },
-  //     },
-  //     {
-  //       opposite: true,
-  //       title: {
-  //         text: "Mood"
-  //       },
-  //       min: 1,
-  //       max: 3,
-  //       tickAmount: 2
-  //     }
-  //   ],
-  // };
 
 
   // const pieChartOptions: ApexOptions = {
@@ -375,23 +367,30 @@ const RecordList = () => {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-2 text-sm text-gray-500">Daily Records</span>
+              <span className="bg-white px-2 text-sm text-gray-500">{moment(selectedDate).format('MM-DD')} - Daily Records</span>
             </div>
           </div>
 
           {dailyRecords.length > 0 ?
             <div className='flex w-full'>
-              <div id="line-chart" className='w-6/12'>
+              <div id="line-chart" className='w-8/12'>
                 <ReactApexChart
                   options={dailyColumnChartOptions}
                   series={dailyColumnChartOptions.series}
-                  type="bar"
+                  type="line"
                   height={CHART_HEIGHT}
                   width={'100%'}
                 />
               </div>
 
-              <div id="pie-chart" className='w-6/12 mt-4'>
+              <div id="pie-chart" className='w-4/12 mt-4'>
+                <ReactApexChart
+                  options={dailyMoodLineChartOptions}
+                  series={dailyMoodLineChartOptions.series}
+                  type="line"
+                  height={CHART_HEIGHT}
+                  width={'100%'}
+                />
                 {/* <ReactApexChart
             options={pieChartOptions}
             series={pieChartOptions.series}
