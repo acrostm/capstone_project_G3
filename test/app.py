@@ -129,6 +129,7 @@ def connected():
     client_confidences[request.sid] = []  # Initialize an empty list for confidence scores
     logging.info(f"Client connected, SID: {request.sid}")
     face.reset_mediapipe()  # 调用 face.py 中的重置函数
+    face.reset_counters()  # 重置计数器
 
 @socketio.on('disconnect')
 def handle_disconnect():
