@@ -94,6 +94,12 @@ actions = np.array(['curl', 'squat', 'bridge'])
 def extract_keypoints(results):
     pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
     return pose
+    
+def reset_counters():
+    global count_curls, count_squats, count_bridges
+    count_curls = 0
+    count_squats = 0
+    count_bridges = 0
 
 is_processing_frame = False
 def get_average_confidence():
