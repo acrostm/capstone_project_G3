@@ -56,7 +56,7 @@ const STATUS_COLOR = {
 let MAX_CURLS_COUNT = 0, MAX_SQUATS_COUNT = 0, MAX_BRIDGES_COUNT = 0
 
 const Cam = ({ containerStyles }: CamProps) => {
-  const [stream, setStream] = useState<MediaStream>();
+  const [stream, setStream, streamRef] = useState<MediaStream>();
   const [imgSrc, setImgSrc] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
@@ -85,9 +85,9 @@ const Cam = ({ containerStyles }: CamProps) => {
       }
       const responseData = await response.json();
       if (responseData.code === 200) {
-        console.log("record success")
         handleDialogOpenStatus()
         resetCounts()
+        window.location.reload()
       }
     } catch (error) {
       console.error("record fail")
@@ -140,7 +140,8 @@ const Cam = ({ containerStyles }: CamProps) => {
   }
 
   const closeSocket = () => {
-    socket && socket.disconnect();
+    const crtSocket = socketRef.current;
+    crtSocket && crtSocket.disconnect();
   }
 
   const startVideo = () => {
@@ -216,8 +217,7 @@ const Cam = ({ containerStyles }: CamProps) => {
 
   const stopVideo = () => {
     setRecordingStatus(false);
-
-    const tracks = stream && stream.getTracks();
+    const tracks = streamRef.current && streamRef.current.getTracks();
     tracks && (tracks.forEach(track => track.stop()));
 
     videoRef.current && (videoRef.current.srcObject = null);
@@ -227,7 +227,7 @@ const Cam = ({ containerStyles }: CamProps) => {
 
   const handleStopVideo = () => {
     const crtSocket: Socket | undefined = socketRef.current;
-    crtSocket && crtSocket.emit('stop', crtSocket.id)
+    crtSocket && (crtSocket.emit('stop', crtSocket.id))
   }
 
   const handleDialogOpenStatus = () => {
@@ -235,8 +235,6 @@ const Cam = ({ containerStyles }: CamProps) => {
   }
 
   const handleDialogSubmit = (mood: MoodKeyType) => {
-    // TODO: submit record
-    console.log(mood)
     postRecord(mood);
   }
 
