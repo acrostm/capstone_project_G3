@@ -32,7 +32,7 @@ import torch
 import torch.nn as nn
 import time
 import counting
-
+should_stop_processing = False
 def reset_mediapipe():
     global pose, should_stop_processing
     should_stop_processing = True  # 通知帧处理逻辑停止或快速完成
@@ -81,26 +81,32 @@ model.to(device)
 model.eval()
 
 # Mediapipe 模型初始化
+confidence_scores = []
+
 
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
 sequence = []
 sequence_length = 30
-actions = np.array(['curl', 'squats', 'bridges'])
+actions = np.array(['curl', 'squat', 'bridge'])
 
 def extract_keypoints(results):
     pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
     return pose
 
 is_processing_frame = False
+def get_average_confidence():
+    if confidence_scores:
+        average_confidence = sum(confidence_scores) / len(confidence_scores)
+        return round(average_confidence, 2)
+    else:
+        return 0  # 如果没有置信度分数，返回0
 
 def process_frame(frame):
-    global sequence, count_curls, dir_curls, count_squats, dir_squats, count_bridges, dir_bridges,is_processing_frame, should_stop_processing
+    global sequence, count_curls, dir_curls, count_squats, dir_squats, count_bridges, dir_bridges, is_processing_frame, should_stop_processing
     if should_stop_processing:
-        print("AB")
-        return frame, {'action': 'no action', 'count_curls': count_curls, 'count_squats': count_squats, 'count_bridges': count_bridges}# 跳过处理或快速完成
-    
+        return frame, {'action': 'no action', 'count_curls': count_curls, 'count_squats': count_squats, 'count_bridges': count_bridges}
     
 
     is_processing_frame = True
@@ -126,18 +132,19 @@ def process_frame(frame):
             probabilities = torch.softmax(outputs, dim=1)
             action_idx = torch.argmax(probabilities, dim=1).item()
             confidence = probabilities[0][action_idx].item() * 100
+            confidence_scores.append(confidence)
 
             # 当置信度高于90%时，更新动作名称
-            if confidence >= 90:
+            if confidence >= 50:
                 action_name = actions[action_idx]
                 # 根据识别出的动作调用相应的计数函数
                 if action_name == 'curl':
                     count_curls, dir_curls, _ = counting.counting_curls(frame, count_curls, dir_curls, time.time())
                     #print(f'curls: {int(count_curls)}')
-                elif action_name == 'squats':
+                elif action_name == 'squat':
                     count_squats, dir_squats, _ = counting.counting_squats(frame, count_squats, dir_squats, time.time())
                     #print(f'squats: {int(count_squats)}')
-                elif action_name == 'bridges':
+                elif action_name == 'bridge':
                     count_bridges, dir_bridges, _ = counting.counting_bridges(frame, count_bridges, dir_bridges, time.time())
                     #print(f'bridges: {int(count_bridges)}')
         # 在视频右侧显示动作名称和置信度（百分比形式）
@@ -189,8 +196,8 @@ def process_frame(frame):
 # cap.release()
 # cv2.destroyAllWindows()
 
-# 从视频文件读取而非摄像头
-# video_path = 'videos/squats.mp4' # 替换为你的视频文件路径
+# # 从视频文件读取而非摄像头
+# video_path = '/Users/brubby/Desktop/tensio/project/body/videos/123.mp4' # 替换为你的视频文件路径
 # cap = cv2.VideoCapture(video_path)
 
 # if not cap.isOpened():
