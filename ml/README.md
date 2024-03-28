@@ -20,16 +20,38 @@ Install them using pip:
 ```
 pip install opencv-python mediapipe numpy torch
 ```
-### Running the Notebooks
+### Installation
+To set up the project on your local system, follow these steps:
 1. Clone this repository to your local machine.
-2. Open `data_preparation.ipynb` to start processing your videos and extracting pose landmarks.
-3. Use `model_training.ipynb` to train the model on the extracted data.
+```
+git clone https://github.com/acrostm/capstone_project_G3.git
+```
+2. Navigate to the cloned repository.
+3. Install the required dependencies.
+```
+pip install -r requirements.txt
+
+```
 
 ## Usage
-To process a new video, place it in the `videos/` directory and run the appropriate cells in `trying.ipynb`. For training with new data, ensure your dataset follows the structured format expected by `trying.ipynb`.
+This project is divided into several key sections:
+
+1. **Video Processing and Pose Estimation**: Utilizes MediaPipe to process videos and extract pose landmarks. Refer to `trying.ipynb` for details.
+
+2. **Feature Extraction**: Transforms pose landmarks into a structured format suitable for machine learning. Check the feature extraction section in the notebook.
+
+3. **Model Training**: Trains a neural network model on the processed data for pose classification. See `trying.ipynb` for implementation.
+
+To process new videos and extract pose data:
+- Place your video files in the `videos/` directory.
+- Run the cells in `data_preparation.ipynb`.
+
+To train the model with new or existing data:
+- Ensure your dataset is formatted correctly as per the structure expected by `trying.ipynb`.
+- Execute the notebook to train the model.
 
 ## Acknowledgments
-- Thanks to the developers of Mediapipe and PyTorch for providing powerful tools for machine learning and computer vision.
-
-
+- MediaPipe for the pose estimation technology.
+- PyTorch for the neural network framework.
+- OpenCV for video processing capabilities.
 
