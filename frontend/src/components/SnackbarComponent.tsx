@@ -6,8 +6,6 @@ import { Snackbar, Alert } from '@mui/material';
 
 
 const SnackbarComponent = ({ open, message, autoHideDuration = 1000, onClose }: SnackbarProps) => {
-
-
   return (
     <Snackbar
       open={open}

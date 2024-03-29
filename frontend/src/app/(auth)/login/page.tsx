@@ -1,43 +1,26 @@
 // src/(auth)/login/page.tsx
 "use client"
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import {useRouter}  from 'next/navigation';
+import { useRouter } from 'next/navigation';
+
 import { Container } from '@/components/Container';
 import { AuthLayout } from '@/components/AuthLayout';
 import { TextField } from '@/components/Fields';
 import { Button } from '@/components/Button';
-import { Transition } from '@headlessui/react';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
-import { XMarkIcon } from '@heroicons/react/20/solid';
+import { showToast } from '@/lib/utils';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [show, setShow] = useState(false);
-  // const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter();
 
-  const fetchUserInfo = async () => {
-    try {
-      const response = await fetch('/api/user', {
-        headers: {
-          Authorization: `Bearer ${localStorage.token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get user\'s information');
-      }
-
-    } catch (error) {
-      console.error('Error fetching user info:', error);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (isLoading) return
     e.preventDefault();
     try {
+      setIsLoading(true)
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -45,86 +28,35 @@ const Login: React.FC = () => {
         },
         body: JSON.stringify({ username, password })
       });
+      if (response.status >= 500) {
+        showToast(response.statusText, 'error')
+        throw Error(response.statusText)
+      }
+      const responseData = await response.json();
+      setIsLoading(false)
+      if (responseData.code === 200) {
+        localStorage.setItem('token', responseData.data.token);
+        localStorage.setItem('justLogin', 'true');
 
-      if (!response.ok) {
-        throw new Error('Login failed, please check your username and password');
+        const redirect_url = localStorage.getItem('redirect_url')
+        if (redirect_url) {
+          localStorage.removeItem('redirect_url')
+          router.replace(redirect_url as string)
+        } else {
+          router.push('/info');
+        }
+      } else {
+        showToast(responseData.message, 'error')
       }
 
-      const responseData = await response.json();
-      localStorage.setItem('token', responseData.data.token);
-      localStorage.setItem('justLogin', 'true');
-      // setError(null);
-
-      // 获取用户信息
-      await fetchUserInfo();
-      router.push('/info');
     } catch (error: any) {
-      // setError(error.message);
+      setIsLoading(false)
+      console.error(error)
     }
   };
 
-  useEffect(() => {
-    const justRegister = localStorage.getItem('justRegister');
-    if (justRegister) {
-      setShow(true);
-      localStorage.removeItem('justRegister'); // 移除标记
-    }
-
-    if (!show) return;
-    const timer = setTimeout(() => {
-      setShow(false);
-    }, 3333);
-
-    return () => clearTimeout(timer); // 清除定时器
-  }, [show]);
-
   return (
     <Container>
-      <>
-        <div
-          aria-live="assertive"
-          className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6 z-50"
-        >
-          <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
-            <Transition
-              show={show}
-              as={Fragment}
-              enter="transform ease-out duration-300 transition"
-              enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-              enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-                <div className="p-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <CheckCircleIcon className="h-6 w-6 text-green-400" aria-hidden="true" />
-                    </div>
-                    <div className="ml-3 w-0 flex-1 pt-0.5">
-                      <p className="text-sm font-medium text-gray-900">Successfully registered!</p>
-                      <p className="mt-1 text-sm text-gray-500">You can now login.</p>
-                    </div>
-                    <div className="ml-4 flex flex-shrink-0">
-                      <button
-                        type="button"
-                        className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        onClick={() => {
-                          setShow(false)
-                        }}
-                      >
-                        <span className="sr-only">Close</span>
-                        <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Transition>
-          </div>
-        </div>
-      </>
       <AuthLayout
         title="Sign in to account"
         subtitle={
@@ -137,31 +69,33 @@ const Login: React.FC = () => {
           </>
         }
       >
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-6">
-          <TextField
-          label="Username"
-          name="username"
-          type="text"
-          autoComplete="username"
-          required
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setUsername(event.target.value)}}
-          />
-          <TextField
-          label = "Password"
-          name = "password"
-          type = "password"
-          autoComplete = "current-password"
-          required
-          onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
-          setPassword(event.target.value)}}
-          />
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-6">
+            <TextField
+              label="Username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setUsername(event.target.value)
+              }}
+            />
+            <TextField
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setPassword(event.target.value)
+              }}
+            />
           </div>
-        <Button type="submit" color="cyan" className="mt-8 w-full">
-          Sign in to account
-        </Button>
-      </form>
+          <Button type="submit" disabled={isLoading} isLoading={isLoading} color="cyan" className="mt-8 w-full">
+            Sign in to account
+          </Button>
+        </form>
       </AuthLayout>
     </Container>
   );

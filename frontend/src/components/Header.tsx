@@ -53,31 +53,19 @@ function MobileNavLink(
 }
 
 export function Header() {
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
   const router = useRouter();
-
-  const checkAndRedirect = async () => {
-    try {
-      const response = await fetch('/api/user', {
-        headers: {
-          Authorization: `Bearer ${localStorage.token}`
-        }
-      });
-      setLoggedIn(response.ok);
-    } catch (error) {
-      console.error('Error checking user token:', error);
-    }
-  };
+  useEffect(() => {
+    setLoggedIn(!!(localStorage.getItem('token')))
+  }, [])
 
   const handleLogout = () => {
     // 清除 localStorage 中的 token，并显示登录界面
-    localStorage.removeItem('token');
+    localStorage.clear()
+    setLoggedIn(false)
     router.push('/');
   };
 
-  useEffect(() => {
-    checkAndRedirect();
-  }, [loggedIn]); // 监听 loggedIn 变化
   return (
     <header>
       <nav>
@@ -139,9 +127,9 @@ export function Header() {
                             <MobileNavLink href="/records">
                               Records
                             </MobileNavLink>
-                            <MobileNavLink href="/posts">
+                            {/* <MobileNavLink href="/posts">
                               Posts
-                            </MobileNavLink>
+                            </MobileNavLink> */}
                             <MobileNavLink href="/info">
                               Account
                             </MobileNavLink>
