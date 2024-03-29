@@ -154,8 +154,8 @@ def process_frame(frame):
                     count_bridges, dir_bridges, _ = counting.counting_bridges(frame, count_bridges, dir_bridges, time.time())
                     #print(f'bridges: {int(count_bridges)}')
         # 在视频右侧显示动作名称和置信度（百分比形式）
-        cv2.putText(frame, f'Action: {action_name}', (frame.shape[1] - 250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(frame, f'Confidence: {confidence:.2f}%', (frame.shape[1] - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(frame, f'Action: {action_name}', (10, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
+        # cv2.putText(frame, f'Confidence: {confidence:.2f}%', (frame.shape[1] - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
     else:
         pass
 
