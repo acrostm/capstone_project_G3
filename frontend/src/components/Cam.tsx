@@ -1,7 +1,6 @@
 // refer: https://medium.com/@jadomene99/integrating-your-opencv-project-into-a-react-component-using-flask-6bcf909c07f4
 
 "use client"
-import { CamProps, MoodKeyType } from "../../types";
 import React, { useRef } from "react";
 import { io, Socket } from 'socket.io-client';
 import useState from 'react-usestateref';
@@ -14,10 +13,11 @@ import bridgingIcon from '@/images/icons/bridging_color.png'
 import { Button } from "./Button";
 import { Icon } from "./Icon";
 import SubmitDialog from "./SubmitDialog";
-
+import { CamProps, MoodKeyType } from "../../types";
+import { useLeavePageConfirm } from "@/hooks/useLeavePageConfirm";
 
 const DEV_HOST = "127.0.0.1:5001"
-const PROD_HOST = "https://www.3cap.xyz"  // TODO: PRODUCT HOST
+const PROD_HOST = "https://www.3cap.xyz"
 const HOST = process.env.NODE_ENV === 'development' ? DEV_HOST : PROD_HOST
 
 const WIDTH = 640, HEIGHT = 360;
@@ -56,6 +56,8 @@ const STATUS_COLOR = {
 let MAX_CURLS_COUNT = 0, MAX_SQUATS_COUNT = 0, MAX_BRIDGES_COUNT = 0
 
 const Cam = ({ containerStyles }: CamProps) => {
+  useLeavePageConfirm();
+
   const [stream, setStream, streamRef] = useState<MediaStream>();
   const [imgSrc, setImgSrc] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null!);

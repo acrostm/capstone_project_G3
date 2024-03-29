@@ -12,28 +12,9 @@ import { checkIsSameDay } from '@/lib/utils';
 import { MoodType } from '../../types';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-const MOOD = {
-  1: '😞',
-  2: '😡',
-  3: '🤩',
-}
-
 // const WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const CHART_HEIGHT = 450;
-
-enum MoodIndex {
-  Happy = 1,
-  Angry,
-  Sad
-}
-interface DailyRecord {
-  // create_time: Date,
-  create_time: string,
-  count: number,
-  mood: MoodIndex
-}
-
 
 const RecordList = () => {
   const [crtDate, setCrtDate] = useState<Date>(moment().toDate())
