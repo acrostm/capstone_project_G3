@@ -1,4 +1,5 @@
 "use client"
+import request from '@/lib/fetchData';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -9,17 +10,13 @@ export default function UsersPage() {
   useEffect(() => {
     const checkAndRedirect = async () => {
       try {
-        const response = await fetch('/api/user', {
+        const response = await request(true, '/api/user', {
           headers: {
             Authorization: `Bearer ${localStorage.token}`
           }
         });
-        setLoggedIn(response.ok);
-
-        if (!loggedIn) {
-          router.push('/login');
-        } else {
-          router.push('/info');
+        if (response.code === 200) {
+          setLoggedIn(response.ok);
         }
       } catch (error) {
         console.error('Error checking user token:', error);

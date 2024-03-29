@@ -10,30 +10,12 @@ import { Container } from '@/components/Container'
 import Empty from './EmptyChart';
 import { checkIsSameDay } from '@/lib/utils';
 import { MoodType } from '../../types';
+import request from '@/lib/fetchData';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
-
-const MOOD = {
-  1: '😞',
-  2: '😡',
-  3: '🤩',
-}
 
 // const WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const CHART_HEIGHT = 450;
-
-enum MoodIndex {
-  Happy = 1,
-  Angry,
-  Sad
-}
-interface DailyRecord {
-  // create_time: Date,
-  create_time: string,
-  count: number,
-  mood: MoodIndex
-}
-
 
 const RecordList = () => {
   const [crtDate, setCrtDate] = useState<Date>(moment().toDate())
@@ -59,19 +41,11 @@ const RecordList = () => {
   const fetchDailyRecords = async () => {
     if (selectedDate) {
       try {
-        const response = await fetch('/api/record/daily', {
+        const response = await request(true, '/api/record/daily', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${localStorage.token}`,
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({ date: selectedDate })
         });
-        if (!response.ok) {
-          throw new Error('Fetch records failed');
-        }
-        const responseData = await response.json();
-        setDailyRecords(responseData.data.map((item: DataType) => {
+        setDailyRecords(response.data.map((item: DataType) => {
           return {
             ...item,
             create_time: moment(item.create_time).toDate()
@@ -86,19 +60,11 @@ const RecordList = () => {
   }
   const fetchMonthlyRecords = async () => {
     try {
-      const response = await fetch('/api/record/monthly', {
+      const response = await request(true, '/api/record/monthly', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ date: crtDate })
       });
-      if (!response.ok) {
-        throw new Error('Fetch records failed');
-      }
-      const responseData = await response.json();
-      setMonthlyRecords(responseData.data.map((item: DataType) => {
+      setMonthlyRecords(response.data.map((item: DataType) => {
         return {
           ...item,
           create_time: moment(item.create_time).toDate()

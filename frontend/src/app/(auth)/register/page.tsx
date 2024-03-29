@@ -6,13 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AuthLayout } from '@/components/AuthLayout';
 import { Button } from '@/components/Button';
 import { SelectField, TextField } from '@/components/Fields'
-
-// import { type Metadata } from 'next'
-//
-// export const metadata: Metadata = {
-//   title: 'Sign Up',
-// }
-// TODO: how to set metadata in client render page?
+import { showToast } from '@/lib/utils';
 
 
 const Page: React.FC = () => {
@@ -26,7 +20,6 @@ const Page: React.FC = () => {
   // TODO: add error handler to TextField component
   const [userError, setUserError] = useState<string | null>(null);
   const [pswError, setPswError] = useState<string | null>(null);
-
 
   const clearError = () => {
     setPswError(null);
@@ -50,99 +43,108 @@ const Page: React.FC = () => {
         body: JSON.stringify({ username, password, email, role })
       });
 
+      if (response.status >= 500) {
+        showToast(response.statusText, 'error')
+        throw Error(response.statusText)
+      }
+
+      const data = await response.json();
+      if (response.ok && data.code === 200) {
+        showToast('🎉Successfully registered!', 'success')
+        router.push('/login');
+      }
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Register failed, please check your username and password');
+        showToast(data.message || 'Register failed, please check your username and password', 'error')
+        return
       }
-      localStorage.setItem('justRegister', 'true');
       router.push('/login');
     } catch (error: any) {
-      console.log(error)
-      setUserError(error.message);
+      console.error(error)
     }
   };
 
   return (
-        <AuthLayout
-          title="Sign up for an account"
-          subtitle={
-            <>
-              Already registered?{' '}
-              <Link href="/login" className="text-cyan-600">
-                Sign in
-              </Link>{' '}
-              to your account.
-            </>
-          }
-        >
-          <form onSubmit={handleSubmit} autoComplete="off">
-            <div className="col-span-full gap-6">
-              <TextField
-                label="Username"
-                name="username"
-                type="text"
-                value={username}
-                required
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  setUsername(event.target.value);
-                }}
-              />
-              {/* TODO: add error handler to TextField component */}
-              <TextField
-                className="col-span-full"
-                label="Email address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  setEmail(event.target.value);
-                }}
-              />
-              <TextField
-                className="col-span-full"
-                label="Password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                required
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  setPassword(event.target.value);
-                }}
-              />
-              {/* TODO: add error handler to TextField component */}
-              <TextField
-                className="col-span-full"
-                label="Confirm Password"
-                name="cf_password"
-                type="password"
-                autoComplete="new-password"
-                value={cfPassword}
-                required
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  setCfPassword(event.target.value);
-                }}
-              />
-              {/* TODO: add error handler to TextField component */}
-              <SelectField
-                className="col-span-full"
-                label="What's your role?"
-                name="user_role"
-                onChange={event => {
-                  setRole(event.target.value)
-                }}
-              >
-                <option value="visitor">Visitor</option>
-                <option value="manager">Manager</option>
-              </SelectField>
-            </div>
-            <Button type="submit" color="cyan" className="mt-8 w-full">
-              Get started today
-            </Button>
-          </form>
-        </AuthLayout>
+    <AuthLayout
+      title="Sign up for an account"
+      subtitle={
+        <>
+          Already registered?{' '}
+          <Link href="/login" className="text-cyan-600">
+            Sign in
+          </Link>{' '}
+          to your account.
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} autoComplete="off">
+        <div className="col-span-full gap-6">
+          <TextField
+            label="Username"
+            name="username"
+            type="text"
+            value={username}
+            required
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setUsername(event.target.value);
+            }}
+          />
+          {/* TODO: add error handler to TextField component */}
+          <TextField
+            className="col-span-full"
+            label="Email address"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setEmail(event.target.value);
+            }}
+          />
+          <TextField
+            className="col-span-full"
+            label="Password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            required
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setPassword(event.target.value);
+            }}
+          />
+          {/* TODO: add error handler to TextField component */}
+          <TextField
+            className="col-span-full"
+            label="Confirm Password"
+            name="cf_password"
+            type="password"
+            autoComplete="new-password"
+            value={cfPassword}
+            required
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setCfPassword(event.target.value);
+            }}
+          />
+          {/* TODO: add error handler to TextField component */}
+          <SelectField
+            className="col-span-full"
+            label="What's your role?"
+            name="user_role"
+            onChange={event => {
+              setRole(event.target.value)
+            }}
+          >
+            <option value="visitor">Visitor</option>
+            <option value="manager">Manager</option>
+          </SelectField>
+        </div>
+        <Button type="submit" color="cyan" className="mt-8 w-full">
+          Get started today
+        </Button>
+      </form>
+    </AuthLayout>
   );
 };
 

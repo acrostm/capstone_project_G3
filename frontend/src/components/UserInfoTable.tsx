@@ -4,6 +4,8 @@ import React from 'react';
 import { Button } from '@/components/Button';
 import { useRouter } from 'next/navigation';
 import LocalizedDateTime from '@/components/LocallizedDateTime';
+import request from '@/lib/fetchData';
+import { showToast } from '@/lib/utils';
 
 interface UserInfo {
   username: string;
@@ -29,20 +31,13 @@ const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
 
   const handleShuffleAvatar = async () => {
     try {
-      const response = await fetch('/api/user/update', {
+      const response = await request(true, '/api/user/update', {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.token}`,
-          'Content-Type': 'application/json'
-        },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get user\'s information');
+      if (response.code === 200) {
+        router.push('/users');
       }
-
-      console.log('response', response);
-      router.push('/users');
     } catch (error) {
       console.error('Error fetching user info:', error);
     }
@@ -50,26 +45,21 @@ const UserInfoTable: React.FC<Props> = ({ userInfo }) => {
 
   const handleUploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) {
-      throw new Error('Failed to upload avatar');
+      showToast('Failed to upload avatar', 'error')
+      return
     }
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await fetch(`/api/user/avatar`, {
+      const response = await request(true, `/api/user/avatar`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.token}`,
-        },
         body: formData,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload avatar');
+      if (response.code === 200) {
+        router.push('/users');
       }
-
-      router.push('/users');
     } catch (error) {
       console.error('Error uploading avatar:', error);
     }

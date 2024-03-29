@@ -12,7 +12,7 @@ export function NavLinks() {
     ['Intro', '/'],
     ['AI', '/ml'],
     ['Records', '/records'],
-    ['Articles', '/posts'],
+    // ['Articles', '/posts'],
     ['Account', '/info'],
     ['About us', '/about'],
   ].map(([label, href], index) => (
