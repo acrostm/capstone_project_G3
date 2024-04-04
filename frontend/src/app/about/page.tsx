@@ -1,31 +1,40 @@
 const people = [
   {
-    name: 'Emma Dorsey',
-    role: 'Senior Developer',
-    imageUrl:
-      'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80',
-    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
-    twitterUrl: '#',
-    linkedinUrl: '#',
-  },  {
-    name: 'Alicia Bell',
-    role: 'Junior Copywriter',
-    imageUrl:
-      'https://images.unsplash.com/photo-1509783236416-c9ad59bae472?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80',
-    bio: 'Turpis lectus et amet elementum. Mi duis integer sed in vitae consequat. Nam vitae, in felis mi dui tempus. Porta at turpis eu odio. Et, sed duis in blandit bibendum accumsan. Purus viverra facilisi suspendisse quis est.',
-    twitterUrl: '#',
-    linkedinUrl: '#',
-  },  {
-    name: 'Jenny Wilson',
-    role: 'Studio Artist',
+    name: 'Ketian Bai',
+    // role: 'Senior Developer',
     imageUrl:
       'https://images.unsplash.com/photo-1507101105822-7472b28e22ac?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80',
     bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
     twitterUrl: '#',
     linkedinUrl: '#',
-  },  {
-    name: 'Anna Roberts',
-    role: 'Partner, Creative',
+  }, {
+    name: 'Jiachen Zhang',
+    // role: 'Junior Copywriter',
+    imageUrl:
+      'https://images.unsplash.com/photo-1572708609022-9689cecb4218?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80',
+    bio: 'Turpis lectus et amet elementum. Mi duis integer sed in vitae consequat. Nam vitae, in felis mi dui tempus. Porta at turpis eu odio. Et, sed duis in blandit bibendum accumsan. Purus viverra facilisi suspendisse quis est.',
+    twitterUrl: '#',
+    linkedinUrl: '#',
+  }, {
+    name: 'Lijuan Zhou',
+    // role: 'Studio Artist',
+    imageUrl:
+      'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80',
+
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    twitterUrl: '#',
+    linkedinUrl: '#',
+  }, {
+    name: 'Runsheng Gu',
+    // role: 'Partner, Creative',
+    imageUrl:
+      'https://images.unsplash.com/photo-1572708609022-9689cecb4218?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80',
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    twitterUrl: '#',
+    linkedinUrl: '#',
+  }, {
+    name: 'Aiping Chen',
+    // role: 'Partner, Creative',
     imageUrl:
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80',
     bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
@@ -53,7 +62,7 @@ export default function Example() {
             <li key={person.name}>
               <img className="aspect-[3/2] w-full rounded-2xl object-cover" src={person.imageUrl} alt="" />
               <h3 className="mt-6 text-lg font-semibold leading-8 text-gray-900">{person.name}</h3>
-              <p className="text-base leading-7 text-gray-600">{person.role}</p>
+              {/* <p className="text-base leading-7 text-gray-600">{person.role}</p> */}
               <p className="mt-4 text-base leading-7 text-gray-600">{person.bio}</p>
               <ul role="list" className="mt-6 flex gap-x-6">
                 <li>

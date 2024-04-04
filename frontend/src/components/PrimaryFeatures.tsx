@@ -16,6 +16,10 @@ import { AppScreen } from '@/components/AppScreen'
 import { CircleBackground } from '@/components/CircleBackground'
 import { Container } from '@/components/Container'
 import { PhoneFrame } from '@/components/PhoneFrame'
+import bicepIcon from '@/images/icons/bicep_color.png'
+import squatsIcon from '@/images/icons/squats_color.png'
+import bridgingIcon from '@/images/icons/bridging_color.png'
+
 import {
   DiageoLogo,
   LaravelLogo,
@@ -26,6 +30,7 @@ import {
   TransistorLogo,
   TupleLogo,
 } from '@/components/StockLogos'
+import { Icon } from './Icon'
 
 const MotionAppScreenHeader = motion(AppScreen.Header)
 const MotionAppScreenBody = motion(AppScreen.Body)
@@ -37,27 +42,49 @@ interface CustomAnimationProps {
 
 const features = [
   {
-    name: 'Invite friends for better returns',
+    name: 'Join us and sign in',
     description:
-      'For every friend you invite to Pocket, you get insider notifications 5 seconds sooner. And it’s 10 seconds if you invite an insider.',
+      'Simple as a wink.',
     icon: DeviceUserIcon,
     screen: InviteScreen,
   },
   {
-    name: 'Notifications on stock dips',
+    name: 'Start AI workout',
     description:
-      'Get a push notification every time we find out something that’s going to lower the share price on your holdings so you can sell before the information hits the public markets.',
-    icon: DeviceNotificationIcon,
+      'Supporting monitoring of curls, squats, and bridging movements. To be continued...',
+    // icon: DeviceNotificationIcon,
+    icon: DeviceClockIcon,
     screen: StocksScreen,
   },
   {
-    name: 'Invest what you want',
+    name: 'Check daily workout in records',
     description:
-      'We hide your stock purchases behind thousands of anonymous trading accounts, so suspicious activity can never be traced back to you.',
+      'Monthly and daily record, clear at a glance.',
     icon: DeviceTouchIcon,
     screen: InvestScreen,
   },
 ]
+
+
+function DeviceClockIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" {...props}>
+      <circle cx={16} cy={16} r={16} fill="#A3A3A3" fillOpacity={0.2} />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M5 4a4 4 0 014-4h14a4 4 0 014 4v10h-2V4a2 2 0 00-2-2h-1.382a1 1 0 00-.894.553l-.448.894a1 1 0 01-.894.553h-6.764a1 1 0 01-.894-.553l-.448-.894A1 1 0 0010.382 2H9a2 2 0 00-2 2v24a2 2 0 002 2h5v2H9a4 4 0 01-4-4V4z"
+        fill="#737373"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M24 32a8 8 0 100-16 8 8 0 000 16zm1-8.414V19h-2v5.414l4 4L28.414 27 25 23.586z"
+        fill="#A3A3A3"
+      />
+    </svg>
+  )
+}
 
 function DeviceUserIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -185,20 +212,20 @@ const bodyAnimation: MotionProps = {
 
 type ScreenProps =
   | {
-      animated: true
-      custom: CustomAnimationProps
-    }
+    animated: true
+    custom: CustomAnimationProps
+  }
   | { animated?: false }
 
 function InviteScreen(props: ScreenProps) {
   return (
     <AppScreen className="w-full">
       <MotionAppScreenHeader {...(props.animated ? headerAnimation : {})}>
-        <AppScreen.Title>Invite people</AppScreen.Title>
-        <AppScreen.Subtitle>
+        <AppScreen.Title>Sign up</AppScreen.Title>
+        {/* <AppScreen.Subtitle>
           Get tips <span className="text-white">5s sooner</span> for every
           invite.
-        </AppScreen.Subtitle>
+        </AppScreen.Subtitle> */}
       </MotionAppScreenHeader>
       <MotionAppScreenBody
         {...(props.animated ? { ...bodyAnimation, custom: props.custom } : {})}
@@ -206,8 +233,10 @@ function InviteScreen(props: ScreenProps) {
         <div className="px-4 py-6">
           <div className="space-y-6">
             {[
-              { label: 'Full name', value: 'Albert H. Wiggin' },
-              { label: 'Email address', value: 'awiggin@chase.com' },
+              { label: 'Username', value: 'Group 3' },
+              { label: 'Email address', value: 'abc@gmail.com' },
+              {label: 'Password', value: '******'},
+              {label: 'Confirm Password', value: '******'},
             ].map((field) => (
               <div key={field.label}>
                 <div className="text-sm text-gray-500">{field.label}</div>
@@ -218,7 +247,7 @@ function InviteScreen(props: ScreenProps) {
             ))}
           </div>
           <div className="mt-6 rounded-lg bg-cyan-500 px-3 py-2 text-center text-sm font-semibold text-white">
-            Invite person
+            Sign Up
           </div>
         </div>
       </MotionAppScreenBody>
@@ -230,8 +259,8 @@ function StocksScreen(props: ScreenProps) {
   return (
     <AppScreen className="w-full">
       <MotionAppScreenHeader {...(props.animated ? headerAnimation : {})}>
-        <AppScreen.Title>Stocks</AppScreen.Title>
-        <AppScreen.Subtitle>March 9, 2022</AppScreen.Subtitle>
+        <AppScreen.Title>AI Detect</AppScreen.Title>
+        {/* <AppScreen.Subtitle>March 9, 2022</AppScreen.Subtitle> */}
       </MotionAppScreenHeader>
       <MotionAppScreenBody
         {...(props.animated ? { ...bodyAnimation, custom: props.custom } : {})}
@@ -239,73 +268,76 @@ function StocksScreen(props: ScreenProps) {
         <div className="divide-y divide-gray-100">
           {[
             {
-              name: 'Laravel',
+              name: 'Curls',
               price: '4,098.01',
               change: '+4.98%',
               color: '#F9322C',
-              logo: LaravelLogo,
+              logo: bicepIcon,
+              size: 50
             },
             {
-              name: 'Tuple',
+              name: 'Squats',
               price: '5,451.10',
               change: '-3.38%',
               color: '#5A67D8',
-              logo: TupleLogo,
+              logo: squatsIcon,
+              size: 50
             },
             {
-              name: 'Transistor',
+              name: 'Bridges',
               price: '4,098.41',
               change: '+6.25%',
               color: '#2A5B94',
-              logo: TransistorLogo,
+              logo: bridgingIcon,
+              size: 50
             },
-            {
-              name: 'Diageo',
-              price: '250.65',
-              change: '+1.25%',
-              color: '#3320A7',
-              logo: DiageoLogo,
-            },
-            {
-              name: 'StaticKit',
-              price: '250.65',
-              change: '-3.38%',
-              color: '#2A3034',
-              logo: StaticKitLogo,
-            },
-            {
-              name: 'Statamic',
-              price: '5,040.85',
-              change: '-3.11%',
-              color: '#0EA5E9',
-              logo: StatamicLogo,
-            },
-            {
-              name: 'Mirage',
-              price: '140.44',
-              change: '+9.09%',
-              color: '#16A34A',
-              logo: MirageLogo,
-            },
-            {
-              name: 'Reversable',
-              price: '550.60',
-              change: '-1.25%',
-              color: '#8D8D8D',
-              logo: ReversableLogo,
-            },
+            // {
+            //   name: 'Diageo',
+            //   price: '250.65',
+            //   change: '+1.25%',
+            //   color: '#3320A7',
+            // },
+            // {
+            //   name: 'StaticKit',
+            //   price: '250.65',
+            //   change: '-3.38%',
+            //   color: '#2A3034',
+            //   logo: StaticKitLogo,
+            // },
+            // {
+            //   name: 'Statamic',
+            //   price: '5,040.85',
+            //   change: '-3.11%',
+            //   color: '#0EA5E9',
+            //   logo: StatamicLogo,
+            // },
+            // {
+            //   name: 'Mirage',
+            //   price: '140.44',
+            //   change: '+9.09%',
+            //   color: '#16A34A',
+            //   logo: MirageLogo,
+            // },
+            // {
+            //   name: 'Reversable',
+            //   price: '550.60',
+            //   change: '-1.25%',
+            //   color: '#8D8D8D',
+            //   logo: ReversableLogo,
+            // },
           ].map((stock) => (
             <div key={stock.name} className="flex items-center gap-4 px-4 py-3">
               <div
                 className="flex-none rounded-full"
                 style={{ backgroundColor: stock.color }}
               >
-                <stock.logo className="h-10 w-10" />
+                <Icon className='inline-block p-0.5 m-0.5 rounded' width={stock.size} height={stock.size} imgSrc={stock.logo} />
+                {/* <stock.logo className="h-10 w-10" /> */}
               </div>
               <div className="flex-auto text-sm text-gray-900">
                 {stock.name}
               </div>
-              <div className="flex-none text-right">
+              {/* <div className="flex-none text-right">
                 <div className="text-sm font-medium text-gray-900">
                   {stock.price}
                 </div>
@@ -319,7 +351,7 @@ function StocksScreen(props: ScreenProps) {
                 >
                   {stock.change}
                 </div>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
@@ -332,9 +364,9 @@ function InvestScreen(props: ScreenProps) {
   return (
     <AppScreen className="w-full">
       <MotionAppScreenHeader {...(props.animated ? headerAnimation : {})}>
-        <AppScreen.Title>Buy $LA</AppScreen.Title>
+        <AppScreen.Title>Checkout Records</AppScreen.Title>
         <AppScreen.Subtitle>
-          <span className="text-white">$34.28</span> per share
+          <span className="text-white">Feb, 2024</span>
         </AppScreen.Subtitle>
       </MotionAppScreenHeader>
       <MotionAppScreenBody
@@ -343,12 +375,25 @@ function InvestScreen(props: ScreenProps) {
         <div className="px-4 py-6">
           <div className="space-y-4">
             {[
-              { label: 'Number of shares', value: '100' },
+              { label: 'Curls', value: (
+                <div className="flex">
+                  100
+                  <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
+                    <path
+                      d="M17 15V7H9M17 7 7 17"
+                      stroke="#06B6D4"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              )},
               {
-                label: 'Current market price',
+                label: 'Squats',
                 value: (
                   <div className="flex">
-                    $34.28
+                    50
                     <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
                       <path
                         d="M17 15V7H9M17 7 7 17"
@@ -361,7 +406,20 @@ function InvestScreen(props: ScreenProps) {
                   </div>
                 ),
               },
-              { label: 'Estimated cost', value: '$3,428.00' },
+              { label: 'Bridges', value: (
+                <div className="flex">
+                  30
+                  <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
+                    <path
+                      d="M17 9V17H9M17 17L7 7"
+                      stroke="#d43906"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              ) },
             ].map((item) => (
               <div
                 key={item.label}
@@ -374,7 +432,7 @@ function InvestScreen(props: ScreenProps) {
               </div>
             ))}
             <div className="rounded-lg bg-cyan-500 px-3 py-2 text-center text-sm font-semibold text-white">
-              Buy shares
+              Checkout daily records
             </div>
           </div>
         </div>
@@ -578,14 +636,14 @@ export function PrimaryFeatures() {
       <Container>
         <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-3xl">
           <h2 className="text-3xl font-medium tracking-tight text-white">
-            Every feature you need to win. Try it for yourself.
+            Not sure where to start?
           </h2>
-          <p className="mt-2 text-lg text-gray-400">
+          {/* <p className="mt-2 text-lg text-gray-400">
             Pocket was built for investors like you who play by their own rules
             and aren’t going to let SEC regulations get in the way of their
             dreams. If other investing tools are afraid to build it, Pocket has
             it.
-          </p>
+          </p> */}
         </div>
       </Container>
       <div className="mt-16 md:hidden">
