@@ -178,7 +178,7 @@ const RecordList = () => {
       width: 2,
     },
     xaxis: {
-      categories: dailyRecords?.map((item) => moment(item.create_time).format('hh:mm')),
+      categories: dailyRecords?.map((item) => moment(item.create_time).format('LT')),
     },
     yaxis: [{
       title: {
@@ -231,7 +231,7 @@ const RecordList = () => {
       width: 2,
     },
     xaxis: {
-      categories: dailyRecords?.map((item) => moment(item.create_time).format('hh:mm')),
+      categories: dailyRecords?.map((item) => moment(item.create_time).format('LT')),
     },
     yaxis: {
       show: false

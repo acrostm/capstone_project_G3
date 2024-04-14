@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "src/user/entities/user.entity";
 
 
@@ -16,15 +16,14 @@ export class Record {
   @Column({ type: 'int', default: 0 })
   bridges_count: number;
 
-  @Column({type: 'float', default: 0})
+  @Column({ type: 'float', default: 0 })
   score: number;
 
   @Column({ length: 50, default: '' })
   mood: string;
 
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+  @CreateDateColumn({
+    type: 'timestamp'
   })
   create_time: Date;
 
