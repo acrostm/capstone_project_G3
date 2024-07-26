@@ -2,7 +2,7 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Toolbar from "@/components/Toolbar";
+import Toolbar from "@/components/ToolBar";
 import Underline from "@tiptap/extension-underline";
 
 const Tiptap = ({ onChange, content }: any) => {
