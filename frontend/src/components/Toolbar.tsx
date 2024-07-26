@@ -20,7 +20,7 @@ type Props = {
   editor: Editor | null;
 };
 
-const Toolbar = ({ editor }: Props) => {
+const ToolBar = ({ editor }: Props) => {
   if (!editor) {
     return null;
   }
@@ -179,4 +179,4 @@ const Toolbar = ({ editor }: Props) => {
   );
 };
 
-export default Toolbar;
+export default ToolBar;
