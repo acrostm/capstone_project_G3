@@ -2,7 +2,7 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Toolbar from "@/components/ToolBar";
+// import Toolbar from "@/components/ToolBar";
 import Underline from "@tiptap/extension-underline";
 
 const Tiptap = ({ onChange, content }: any) => {
@@ -24,7 +24,7 @@ const Tiptap = ({ onChange, content }: any) => {
 
   return (
     <div className="w-full px-4">
-      <Toolbar editor={editor} />
+      {/* <Toolbar editor={editor} /> */}
       <EditorContent style={{ whiteSpace: "pre-line" }} editor={editor} />
     </div>
   );
